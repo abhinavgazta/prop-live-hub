@@ -124,7 +124,12 @@ function getEventType(dateStr: string, timeStr: string): "live" | "upcoming" {
   const hoursDiff = timeDiff / (1000 * 60 * 60);
 
   if (hoursDiff <= 2 && hoursDiff >= -2) {
-    return "live";
+    if (typeof window !== "undefined") {
+      try {
+        const broadcasting = localStorage.getItem("proplive_host_broadcasting");
+        if (broadcasting === "1") return "live";
+      } catch {}
+    }
   }
 
   return "upcoming";
@@ -150,12 +155,22 @@ export function getEventRegistrationCount(eventId: string): number {
 async function convertEventToProperty(event: StoredEvent): Promise<Property> {
   const coordinates = await geocodeLocation(event.sector);
 
-  // Determine event type based on status and time
+  // Determine event type based on status and broadcast flag
   let eventType: Property["type"];
   if (event.status === "completed") {
     eventType = "property"; // Grey dots for completed/replay events
   } else {
-    eventType = getEventType(event.date, event.time);
+    let liveEventId: string | null = null;
+    if (typeof window !== "undefined") {
+      try {
+        liveEventId = localStorage.getItem("proplive_live_event_id");
+      } catch {}
+    }
+    if (liveEventId) {
+      eventType = "live";
+    } else {
+      eventType = getEventType(event.date, event.time);
+    }
   }
 
   let propertyType: Property["propertyType"] = "3BHK";

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Eye,
   Flame,
@@ -27,11 +27,12 @@ import { Track } from "livekit-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LiveRoom } from "@/components/livekit/LiveRoom";
+import { setLiveBroadcast, clearLiveBroadcast } from "@/lib/live-broadcast";
 
 const ROOM_NAME = "event-1";
 
 export function HostContent() {
-  const identity = useMemo(() => `host-${Math.random().toString(36).slice(2, 6)}`, []);
+  const identity = "host";
   return (
     <LiveRoom room={ROOM_NAME} identity={identity} role="publisher">
       <Host />
@@ -138,6 +139,28 @@ function Host() {
       setCameraOn(true);
       setMicOn(true);
       setIsStreaming(true);
+      try {
+        localStorage.setItem("proplive_host_broadcasting", "1");
+        let candidateId = "live";
+        const stored = localStorage.getItem("proplive_events");
+        if (stored) {
+          const events = JSON.parse(stored) as Array<{
+            _id: string;
+            status?: string;
+            createdAt?: string;
+          }>;
+          const eligible = events.filter(
+            (e) => e.status !== "completed" && e.status !== "cancelled",
+          );
+          eligible.sort((a, b) => (a.createdAt && b.createdAt && a.createdAt > b.createdAt ? -1 : 1));
+          candidateId = eligible[0]?._id ?? "live";
+        }
+        localStorage.setItem("proplive_live_event_id", candidateId);
+        await setLiveBroadcast({ data: { eventId: candidateId } });
+        window.dispatchEvent(new Event("proplive_event_created"));
+      } catch (err) {
+        console.error("Failed to mark broadcast live:", err);
+      }
     } catch (e) {
       alert(`Camera failed: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -196,6 +219,14 @@ function Host() {
       setMicOn(false);
       setScreenOn(false);
       setIsStreaming(false);
+      try {
+        localStorage.removeItem("proplive_host_broadcasting");
+        localStorage.removeItem("proplive_live_event_id");
+        await clearLiveBroadcast();
+        window.dispatchEvent(new Event("proplive_event_created"));
+      } catch (err) {
+        console.error("Failed to clear broadcast:", err);
+      }
       setElapsed(0);
       setPinnedQuestion(null);
       viewerHistory.current = [0];

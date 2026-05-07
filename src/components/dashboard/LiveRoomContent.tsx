@@ -137,7 +137,7 @@ function LiveLayout({
       { source: Track.Source.Camera, withPlaceholder: false },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: true },
+    { onlySubscribed: false },
   );
 
   const remoteTracks = tracks.filter((t) => !t.participant.isLocal);
@@ -156,8 +156,12 @@ function LiveLayout({
     const text = new TextDecoder().decode(msg.payload);
     if (text === "stream-ended") setStreamEnded(true);
   });
-  const screenTrack = remoteTracks.find((t) => t.source === Track.Source.ScreenShare);
-  const cameraTrack = remoteTracks.find((t) => t.source === Track.Source.Camera);
+  const screenTrack = remoteTracks.find(
+    (t) => t.source === Track.Source.ScreenShare && !t.publication?.isMuted,
+  );
+  const cameraTrack = remoteTracks.find(
+    (t) => t.source === Track.Source.Camera && !t.publication?.isMuted,
+  );
   const mainTrack = screenTrack ?? cameraTrack ?? null;
 
   return (

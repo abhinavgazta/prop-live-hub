@@ -20,7 +20,6 @@ const demandNav: NavItem[] = [
 const sellerNav: NavItem[] = [
   { to: "/seller", label: "Discover", icon: MapPin },
   { to: "/seller/my-events", label: "My Events", icon: ListChecks },
-  { to: "/seller/live", label: "Live Room", icon: Radio, live: true },
   { to: "/seller/replay", label: "Replays", icon: PlayCircle },
   { to: "/seller/reputation", label: "Reputation", icon: ShieldCheck },
   { to: "/seller/host", label: "Host", icon: BarChart3 },

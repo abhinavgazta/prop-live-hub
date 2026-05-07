@@ -26,6 +26,7 @@ import {
   isUserRegistered,
   type Property,
 } from "@/lib/property-data";
+import { getLiveBroadcast } from "@/lib/live-broadcast";
 
 const Map = DiscoveryMap;
 
@@ -367,14 +368,50 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
   const [searchQuery, setSearchQuery] = useState("");
   const [allProperties, setAllProperties] = useState<Property[]>([]);
 
+  const SYNTHETIC_LIVE_ID = "__live_broadcast__";
+
   // Load properties from localStorage
   useEffect(() => {
     const loadProperties = async () => {
+      let liveEventId: string | null = null;
+      try {
+        const live = await getLiveBroadcast();
+        if (live?.eventId && typeof window !== "undefined") {
+          localStorage.setItem("proplive_live_event_id", live.eventId);
+          liveEventId = live.eventId;
+        } else if (typeof window !== "undefined") {
+          localStorage.removeItem("proplive_live_event_id");
+        }
+      } catch (err) {
+        console.error("Failed to fetch live broadcast:", err);
+      }
       const properties = await getAllProperties();
+      // If broadcast active but no events in localStorage, inject synthetic live card
+      if (liveEventId && properties.length === 0) {
+        properties.push({
+          id: SYNTHETIC_LIVE_ID,
+          title: "Live Property Tour",
+          developer: "PropLive Host",
+          location: "Sector 65, Gurgaon",
+          sector: "Sector 65",
+          city: "Gurgaon",
+          lat: 28.4646,
+          lng: 77.0266,
+          type: "live",
+          propertyType: "3BHK",
+          price: 3,
+          priceDisplay: "₹3 Cr",
+          viewers: 1,
+          status: "under-construction",
+          verified: true,
+        });
+      }
       setAllProperties(properties);
     };
 
     loadProperties();
+
+    const poll = setInterval(loadProperties, 3000);
 
     // Listen for storage and custom events
     const handleUpdate = () => {
@@ -386,6 +423,7 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
     window.addEventListener("proplive_registration_changed", handleUpdate);
 
     return () => {
+      clearInterval(poll);
       window.removeEventListener("storage", handleUpdate);
       window.removeEventListener("proplive_event_created", handleUpdate);
       window.removeEventListener("proplive_registration_changed", handleUpdate);
