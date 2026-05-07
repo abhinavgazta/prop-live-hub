@@ -68,35 +68,35 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.18 0.04 250);
+  --radius: 0.5rem;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.2 0.02 270);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.04 250);
+  --card-foreground: oklch(0.2 0.02 270);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.04 250);
-  --primary: oklch(0.32 0.13 255);
+  --popover-foreground: oklch(0.2 0.02 270);
+  --primary: oklch(0.48 0.24 285);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.97 0.01 240);
-  --secondary-foreground: oklch(0.22 0.05 255);
-  --muted: oklch(0.97 0.005 240);
-  --muted-foreground: oklch(0.5 0.02 250);
-  --accent: oklch(0.72 0.14 195);
-  --accent-foreground: oklch(0.15 0.02 250);
+  --secondary: oklch(0.96 0.01 270);
+  --secondary-foreground: oklch(0.2 0.02 270);
+  --muted: oklch(0.96 0.005 270);
+  --muted-foreground: oklch(0.48 0.02 270);
+  --accent: oklch(0.95 0.01 270);
+  --accent-foreground: oklch(0.2 0.02 270);
   --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.93 0.01 250);
-  --input: oklch(0.93 0.01 250);
-  --ring: oklch(0.32 0.13 255);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.91 0.01 270);
+  --input: oklch(0.91 0.01 270);
+  --ring: oklch(0.48 0.24 285);
   --gold: oklch(0.82 0.16 85);
   --gold-foreground: oklch(0.2 0.04 60);
-  --silver: oklch(0.78 0.02 250);
+  --silver: oklch(0.78 0.02 270);
   --live: oklch(0.62 0.22 25);
   --teal: oklch(0.72 0.14 195);
-  --gradient-primary: linear-gradient(135deg, oklch(0.32 0.13 255), oklch(0.42 0.15 245));
+  --gradient-primary: linear-gradient(135deg, oklch(0.48 0.24 285), oklch(0.58 0.22 280));
   --gradient-live: linear-gradient(135deg, oklch(0.62 0.22 25), oklch(0.7 0.2 35));
-  --shadow-elegant: 0 10px 30px -12px oklch(0.32 0.13 255 / 0.18);
-  --shadow-soft: 0 2px 8px -2px oklch(0.18 0.04 250 / 0.08);
+  --shadow-elegant: 0 10px 30px -12px oklch(0.48 0.24 285 / 0.18);
+  --shadow-soft: 0 2px 8px -2px oklch(0.2 0.02 270 / 0.08);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -197,4 +197,22 @@
   backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid oklch(1 0 0 / 0.6);
+}
+
+/* Map pin interactivity */
+.leaflet-interactive {
+  cursor: pointer !important;
+  transition: all 0.2s ease;
+}
+
+.leaflet-interactive:hover {
+  filter: brightness(1.1);
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px;
+}
+
+.leaflet-tooltip {
+  cursor: pointer;
 }

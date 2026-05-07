@@ -73,19 +73,36 @@ export function DiscoveryMap({ pins, onSelect }: { pins: Pin[]; onSelect?: (p: P
       />
       <HeatGlow pins={pins} />
       {pins.map((p) => {
-        const color = p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#1e3a8a";
+        const color = p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#5E23DC";
         return (
           <CircleMarker
             key={p.id}
             center={[p.lat, p.lng]}
             radius={p.type === "live" ? 11 : 8}
-            pathOptions={{ color: "white", weight: 2, fillColor: color, fillOpacity: 1 }}
-            eventHandlers={{ click: () => onSelect?.(p) }}
+            pathOptions={{
+              color: "white",
+              weight: 2,
+              fillColor: color,
+              fillOpacity: 1,
+              className: "cursor-pointer",
+            }}
+            eventHandlers={{
+              click: () => onSelect?.(p),
+              mouseover: (e) => {
+                const target = e.target;
+                target.setStyle({ fillOpacity: 0.7, weight: 3 });
+              },
+              mouseout: (e) => {
+                const target = e.target;
+                target.setStyle({ fillOpacity: 1, weight: 2 });
+              },
+            }}
           >
             <Tooltip direction="top" offset={[0, -8]} opacity={1}>
-              <div className="text-xs">
+              <div className="cursor-pointer text-xs">
                 <div className="font-bold">{p.title}</div>
                 <div className="text-[10px] opacity-70">{p.meta}</div>
+                <div className="mt-1 text-[9px] font-semibold text-primary">Click to view</div>
               </div>
             </Tooltip>
           </CircleMarker>

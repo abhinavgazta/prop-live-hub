@@ -1,103 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Search,
   SlidersHorizontal,
-  Radio,
   Calendar,
   Star,
   Building2,
   TrendingUp,
   Eye,
   ChevronRight,
+  MapPin,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { DiscoveryMap, Pin } from "@/components/map/DiscoveryMap";
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
+import { searchLocality, formatLocationName, type GeocodingResult } from "@/lib/geocoding";
+import {
+  PROPERTY_DATA,
+  FILTER_OPTIONS,
+  filterProperties,
+  type Property,
+} from "@/lib/property-data";
 
 const Map = DiscoveryMap;
 
-export const PINS: Pin[] = [
-  {
-    id: "1",
-    lat: 28.4646,
-    lng: 77.0266,
-    type: "live",
-    title: "M3M Golf Estate · Live Tour",
-    meta: "1,284 watching · Sector 65",
-    viewers: 1284,
-  },
-  {
-    id: "2",
-    lat: 28.4321,
-    lng: 77.0667,
-    type: "live",
-    title: "DLF Privana South",
-    meta: "812 watching · Sector 76",
-    viewers: 812,
-  },
-  {
-    id: "3",
-    lat: 28.4089,
-    lng: 77.051,
-    type: "upcoming",
-    title: "Sector 84 Masterclass",
-    meta: "Sat 7 PM · 2.4k registered",
-  },
-  {
-    id: "4",
-    lat: 28.49,
-    lng: 77.085,
-    type: "upcoming",
-    title: "Smart Buyer Workshop",
-    meta: "Sun 6 PM · Locality Legends",
-  },
-  {
-    id: "5",
-    lat: 28.45,
-    lng: 77.09,
-    type: "property",
-    title: "Emaar Digi Homes",
-    meta: "3BHK · ₹2.4 Cr onwards",
-  },
-  {
-    id: "6",
-    lat: 28.475,
-    lng: 77.04,
-    type: "property",
-    title: "Sobha City",
-    meta: "4BHK · ₹3.1 Cr onwards",
-  },
-  {
-    id: "7",
-    lat: 28.42,
-    lng: 77.03,
-    type: "property",
-    title: "Adani Samsara",
-    meta: "Villa · ₹5.8 Cr onwards",
-  },
-  {
-    id: "8",
-    lat: 28.44,
-    lng: 77.075,
-    type: "live",
-    title: "Tata Primanti — Open House",
-    meta: "521 watching · Sector 72",
-  },
-];
-
-const FILTERS = [
-  "Live Now",
-  "Upcoming",
-  "Replays",
-  "3 BHK",
-  "4 BHK",
-  "Villa",
-  "Plot",
-  "Under ₹2 Cr",
-  "Verified Moderator",
-];
+// Convert property data to pins for the map
+function propertyToPins(properties: Property[]): Pin[] {
+  return properties.map((p) => ({
+    id: p.id,
+    lat: p.lat,
+    lng: p.lng,
+    type: p.type,
+    title: p.title,
+    meta:
+      p.type === "live"
+        ? `${p.viewers?.toLocaleString()} watching · ${p.sector}`
+        : p.type === "upcoming"
+          ? p.liveDate || "Coming soon"
+          : `${p.propertyType} · ${p.priceDisplay}`,
+    viewers: p.viewers,
+  }));
+}
 
 function StatPill({
   label,
@@ -122,70 +67,185 @@ function StatPill({
   );
 }
 
-export function DiscoverHeader() {
+export function DiscoverHeader({
+  propertyCount,
+}: {
+  propertyCount: { live: number; upcoming: number; total: number };
+}) {
   return (
     <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1">
           <span className="h-1.5 w-1.5 rounded-full bg-live pulse-live" />
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            14 events live in Gurgaon
+            {propertyCount.live} events live in Gurgaon
           </span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-          Discover what's happening on every street.
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Discover properties live.</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Live tours, masterclasses and verified resident insights — pinned to the map, ranked by
-          community trust.
+          Live property tours, virtual walkthroughs and verified resident insights — explore homes
+          on the map, ranked by community trust.
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <StatPill label="Live Now" value="14" tone="live" />
-        <StatPill label="This Week" value="38" />
-        <StatPill label="Legends" value="126" tone="gold" />
+        <StatPill label="Live Now" value={propertyCount.live.toString()} tone="live" />
+        <StatPill label="This Week" value={propertyCount.upcoming.toString()} />
+        <StatPill label="Properties" value={propertyCount.total.toString()} tone="gold" />
       </div>
     </div>
   );
 }
 
 export function DiscoverFilters({
-  active,
-  setActive,
+  activeFilters,
+  setActiveFilters,
+  searchQuery,
+  setSearchQuery,
+  onLocationSelect,
 }: {
-  active: string;
-  setActive: (f: string) => void;
+  activeFilters: string[];
+  setActiveFilters: (filters: string[]) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  onLocationSelect?: (lat: number, lng: number, name: string) => void;
 }) {
+  const [suggestions, setSuggestions] = useState<GeocodingResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const searchTimeout = setTimeout(async () => {
+      if (searchQuery.length >= 2) {
+        setIsSearching(true);
+        const results = await searchLocality(searchQuery);
+        setSuggestions(results);
+        setShowSuggestions(true);
+        setIsSearching(false);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchQuery]);
+
+  const toggleFilter = (filterId: string) => {
+    if (activeFilters.includes(filterId)) {
+      setActiveFilters(activeFilters.filter((f) => f !== filterId));
+    } else {
+      setActiveFilters([...activeFilters, filterId]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: GeocodingResult) => {
+    const locationName = formatLocationName(suggestion);
+    setSearchQuery(locationName);
+    setShowSuggestions(false);
+    if (onLocationSelect) {
+      onLocationSelect(parseFloat(suggestion.lat), parseFloat(suggestion.lon), locationName);
+    }
+  };
+
   return (
     <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
-      <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-[var(--shadow-soft)]">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          placeholder="Search Sector 84, Golf Course Road, M3M Golf Estate…"
-        />
-        <Button size="sm" variant="ghost" className="h-7 gap-1.5 px-2 text-xs">
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filters
-        </Button>
+      <div className="relative flex-1" ref={searchRef}>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-[var(--shadow-soft)]">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            placeholder="Search Sector 84, Golf Course Road, Gurgaon…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSuggestions([]);
+                setShowSuggestions(false);
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute top-full z-50 mt-2 w-full rounded-xl border border-border bg-card shadow-[var(--shadow-elegant)]">
+            <div className="max-h-64 overflow-y-auto p-2">
+              {suggestions.map((suggestion, idx) => (
+                <button
+                  key={`${suggestion.lat}-${suggestion.lon}-${idx}`}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-secondary"
+                >
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium">{formatLocationName(suggestion)}</div>
+                    <div className="truncate text-xs text-muted-foreground">
+                      {suggestion.display_name}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isSearching && (
+          <div className="absolute top-full z-50 mt-2 w-full rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-[var(--shadow-elegant)]">
+            Searching locations...
+          </div>
+        )}
       </div>
+
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setActive(f)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${active === f ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}
-          >
-            {f}
-          </button>
-        ))}
+        {FILTER_OPTIONS.map((filter) => {
+          const isActive = activeFilters.includes(filter.id);
+          return (
+            <button
+              key={filter.id}
+              onClick={() => toggleFilter(filter.id)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                isActive
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              {filter.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export function LiveCard({ pin, dashboard }: { pin: Pin; dashboard: "demand" | "seller" }) {
+export function LiveCard({
+  property,
+  dashboard,
+}: {
+  property: Property;
+  dashboard: "demand" | "seller";
+}) {
   const to = `/${dashboard}/live`;
+  const isLive = property.type === "live";
+
   return (
     <Link
       to={to}
@@ -197,22 +257,36 @@ export function LiveCard({ pin, dashboard }: { pin: Pin; dashboard: "demand" | "
           style={{ background: "var(--gradient-primary)" }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.25),transparent_60%)]" />
-          <Badge className="absolute left-1.5 top-1.5 gap-1 bg-live px-1.5 py-0 text-[9px]">
-            <span className="h-1 w-1 rounded-full bg-white" />
-            LIVE
-          </Badge>
-          <div className="absolute bottom-1 right-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-white">
-            <Eye className="h-2.5 w-2.5" />
-            {pin.viewers?.toLocaleString()}
-          </div>
+          {isLive && (
+            <>
+              <Badge className="absolute left-1.5 top-1.5 gap-1 bg-live px-1.5 py-0 text-[9px]">
+                <span className="h-1 w-1 rounded-full bg-white" />
+                LIVE
+              </Badge>
+              <div className="absolute bottom-1 right-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-white">
+                <Eye className="h-2.5 w-2.5" />
+                {property.viewers?.toLocaleString()}
+              </div>
+            </>
+          )}
+          {!isLive && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Building2 className="h-6 w-6 text-white/80" />
+            </div>
+          )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">{pin.title}</div>
-          <div className="mt-0.5 truncate text-xs text-muted-foreground">{pin.meta}</div>
+          <div className="truncate text-sm font-semibold">{property.title}</div>
+          <div className="mt-0.5 truncate text-xs text-muted-foreground">{property.location}</div>
           <div className="mt-1.5 flex items-center gap-1.5">
-            <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[9px]">
-              <Star className="h-2.5 w-2.5 fill-[var(--gold)] text-[var(--gold)]" />
-              Legend host
+            {property.verified && (
+              <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[9px]">
+                <Star className="h-2.5 w-2.5 fill-[var(--gold)] text-[var(--gold)]" />
+                Verified
+              </Badge>
+            )}
+            <Badge variant="outline" className="px-1.5 py-0 text-[9px]">
+              {property.priceDisplay}
             </Badge>
           </div>
         </div>
@@ -222,7 +296,13 @@ export function LiveCard({ pin, dashboard }: { pin: Pin; dashboard: "demand" | "
   );
 }
 
-export function DiscoverMapSection({ pins }: { pins: Pin[] }) {
+export function DiscoverMapSection({
+  pins,
+  onPinClick,
+}: {
+  pins: Pin[];
+  onPinClick?: (pin: Pin) => void;
+}) {
   return (
     <div className="relative h-[560px] overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
       <Suspense
@@ -232,13 +312,13 @@ export function DiscoverMapSection({ pins }: { pins: Pin[] }) {
           </div>
         }
       >
-        <Map pins={pins} />
+        <Map pins={pins} onSelect={onPinClick} />
       </Suspense>
 
       <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-2">
         <div className="glass pointer-events-auto rounded-xl px-3 py-2 shadow-[var(--shadow-soft)]">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Engagement Heat
+            Property Heat
           </div>
           <div className="mt-1 flex items-center gap-1.5">
             <span className="h-2 w-8 rounded-full bg-gradient-to-r from-teal/40 to-live/80" />
@@ -270,15 +350,70 @@ export function DiscoverMapSection({ pins }: { pins: Pin[] }) {
   );
 }
 
+// Main DiscoverContent component
+export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "seller" }) {
+  const navigate = useNavigate();
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter properties based on search and active filters
+  const filteredProperties = filterProperties(PROPERTY_DATA, activeFilters, searchQuery);
+
+  // Convert to pins for the map
+  const pins = propertyToPins(filteredProperties);
+
+  // Calculate statistics
+  const stats = {
+    live: PROPERTY_DATA.filter((p) => p.type === "live").length,
+    upcoming: PROPERTY_DATA.filter((p) => p.type === "upcoming").length,
+    total: PROPERTY_DATA.length,
+  };
+
+  // Handle pin click on map
+  const handlePinClick = (pin: Pin) => {
+    // Find the full property data
+    const property = PROPERTY_DATA.find((p) => p.id === pin.id);
+    if (!property) return;
+
+    // Navigate based on property type
+    if (property.type === "live") {
+      navigate({ to: `/${dashboard}/live` });
+    } else if (property.type === "upcoming") {
+      // For upcoming events, navigate to live page where they can see scheduled tours
+      navigate({ to: `/${dashboard}/live` });
+    } else {
+      // For regular properties, navigate to discover page with search for that property
+      // You could also create a property detail page in the future
+      navigate({ to: `/${dashboard}/live` });
+    }
+  };
+
+  return (
+    <div className="px-4 py-6 md:px-8 md:py-8">
+      <DiscoverHeader propertyCount={stats} />
+      <DiscoverFilters
+        activeFilters={activeFilters}
+        setActiveFilters={setActiveFilters}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <DiscoverMapSection pins={pins} onPinClick={handlePinClick} />
+        <DiscoverSidebar properties={filteredProperties} dashboard={dashboard} />
+      </div>
+    </div>
+  );
+}
+
 export function DiscoverSidebar({
-  pins,
+  properties,
   dashboard,
 }: {
-  pins: Pin[];
+  properties: Property[];
   dashboard: "demand" | "seller";
 }) {
-  const liveCards = pins.filter((p) => p.type === "live");
-  const upcoming = pins.filter((p) => p.type === "upcoming");
+  const liveProperties = properties.filter((p) => p.type === "live").slice(0, 3);
+  const upcoming = properties.filter((p) => p.type === "upcoming").slice(0, 3);
 
   return (
     <aside className="flex flex-col gap-3">
@@ -293,32 +428,42 @@ export function DiscoverSidebar({
           View all →
         </Link>
       </div>
-      {liveCards.map((c) => (
-        <LiveCard key={c.id} pin={c} dashboard={dashboard} />
-      ))}
+      {liveProperties.length > 0 ? (
+        liveProperties.map((property) => (
+          <LiveCard key={property.id} property={property} dashboard={dashboard} />
+        ))
+      ) : (
+        <div className="rounded-2xl border border-border bg-card p-4 text-center text-sm text-muted-foreground">
+          No live tours right now
+        </div>
+      )}
 
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-teal" />
-          <h3 className="text-sm font-bold">Upcoming Masterclasses</h3>
-        </div>
-        <div className="space-y-3">
-          {upcoming.map((p) => (
-            <div key={p.id} className="flex items-start gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
-                <Building2 className="h-4 w-4" />
+      {upcoming.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-teal" />
+            <h3 className="text-sm font-bold">Upcoming Tours</h3>
+          </div>
+          <div className="space-y-3">
+            {upcoming.map((property) => (
+              <div key={property.id} className="flex items-start gap-3">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold">{property.title}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {property.liveDate || property.location}
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
+                  Remind
+                </Button>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-semibold">{p.title}</div>
-                <div className="text-xs text-muted-foreground">{p.meta}</div>
-              </div>
-              <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
-                Remind
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         className="rounded-2xl border border-border p-4 text-primary-foreground"
@@ -329,9 +474,11 @@ export function DiscoverSidebar({
           Hot sector this week
         </div>
         <div className="mt-2 text-2xl font-bold">Sector 84</div>
-        <div className="text-xs opacity-80">+38% engagement · 6 live tours · 2 masterclasses</div>
+        <div className="text-xs opacity-80">
+          {properties.filter((p) => p.sector.includes("84")).length} properties · High demand
+        </div>
         <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs">
-          Join the conversation
+          Explore Sector 84
         </Button>
       </div>
     </aside>
