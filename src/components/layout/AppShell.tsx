@@ -1,8 +1,14 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
-import { MapPin, Radio, PlayCircle, ShieldCheck, BarChart3 } from "lucide-react";
+import { MapPin, Radio, PlayCircle, ShieldCheck, BarChart3, Plus, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type NavItem = { to: string; label: string; icon: typeof MapPin; live?: boolean };
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof MapPin;
+  live?: boolean;
+  highlight?: boolean;
+};
 
 const demandNav: NavItem[] = [
   { to: "/demand", label: "Discover", icon: MapPin },
@@ -12,10 +18,12 @@ const demandNav: NavItem[] = [
 
 const sellerNav: NavItem[] = [
   { to: "/seller", label: "Discover", icon: MapPin },
+  { to: "/seller/my-events", label: "My Events", icon: ListChecks },
   { to: "/seller/live", label: "Live Room", icon: Radio, live: true },
   { to: "/seller/replay", label: "Replays", icon: PlayCircle },
   { to: "/seller/reputation", label: "Reputation", icon: ShieldCheck },
   { to: "/seller/host", label: "Host", icon: BarChart3 },
+  { to: "/seller/create-event", label: "Create Event", icon: Plus, highlight: true },
 ];
 
 export function AppShell() {
@@ -55,8 +63,12 @@ export function AppShell() {
                   className={cn(
                     "group relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active
-                      ? "bg-secondary text-foreground"
-                      : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
+                      ? n.highlight
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-foreground"
+                      : n.highlight
+                        ? "bg-primary/10 text-primary hover:bg-primary/20"
+                        : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
                   )}
                 >
                   <n.icon className="h-4 w-4" />
@@ -96,7 +108,13 @@ export function AppShell() {
                 to={n.to}
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium",
-                  active ? "bg-secondary text-foreground" : "text-muted-foreground",
+                  active
+                    ? n.highlight
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-foreground"
+                    : n.highlight
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground",
                 )}
               >
                 <n.icon className="h-3.5 w-3.5" />
