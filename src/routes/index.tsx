@@ -1,4 +1,24 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { lazy, Suspense, useState } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  Calendar,
+  Building2,
+  TrendingUp,
+  Eye,
+  ChevronRight,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { Pin } from "@/components/map/DiscoveryMap";
+import { MasterclassPlugin } from "@/components/layout/MasterclassPlugin";
+
+const DiscoveryMap = lazy(() =>
+  typeof window !== "undefined"
+    ? import("@/components/map/DiscoveryMap").then((m) => ({ default: m.DiscoveryMap }))
+    : Promise.resolve({ default: () => <div className="h-full w-full bg-[#f6f8fb]" /> }),
+);
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -147,6 +167,7 @@ function Index() {
           <StatPill label="Legends" value="126" tone="gold" />
         </div>
       </div>
+
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-[var(--shadow-soft)]">
           <Search className="h-4 w-4 text-muted-foreground" />
@@ -171,6 +192,7 @@ function Index() {
           ))}
         </div>
       </div>
+
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <div className="relative h-[560px] overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
           <Suspense
@@ -251,7 +273,7 @@ function Index() {
                   <div className="mt-0.5 truncate text-xs text-muted-foreground">{c.meta}</div>
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[9px]">
-                      <Star className="h-2.5 w-2.5 fill-[var(--gold)] text-[var(--gold)]" />
+                      <ChevronRight className="h-2.5 w-2.5" />
                       Legend host
                     </Badge>
                   </div>
@@ -283,121 +305,21 @@ function Index() {
               ))}
             </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-secondary/30 p-4">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
+              <TrendingUp className="h-3.5 w-3.5" /> Hot Sector
+            </div>
+            <div className="text-xl font-bold">Sector 84</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">+38% engagement today</div>
+            <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs font-semibold">
+              Join the conversation
+            </Button>
+          </div>
         </aside>
       </div>
-      <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-soft)] relative">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
-        <div className="flex flex-col lg:flex-row relative">
-          {/* Main Masterclass Content (50%) */}
-          <div className="flex-1 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-border/50">
-            <div className="flex items-center gap-2 mb-4">
-              <Badge className="bg-teal/15 text-teal border-teal/20">
-                Next Masterclass: Saturday 7 PM
-              </Badge>
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-6 w-6 rounded-full border-2 border-card bg-secondary flex items-center justify-center overflow-hidden"
-                  >
-                    <div className="h-full w-full bg-gradient-to-br from-primary/20 to-teal/20" />
-                  </div>
-                ))}
-              </div>
-              <span className="text-[11px] font-medium text-muted-foreground ml-1">
-                +2.4k interested
-              </span>
-            </div>
-
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Master the Gurgaon Market
-            </h2>
-
-            <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-xl">
-              Resident-led sessions designed to peel back the marketing layers. Our "Locality
-              Legends" conduct live audits covering:
-            </p>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[
-                { icon: <TrendingUp className="h-3 w-3" />, text: "Hidden SBA Charges" },
-                { icon: <Radio className="h-3 w-3" />, text: "Real-time Noise Audits" },
-                { icon: <Building2 className="h-3 w-3" />, text: "Builder Track Records" },
-                { icon: <Star className="h-3 w-3" />, text: "Maintenance Realities" },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 text-xs font-medium text-foreground"
-                >
-                  <div className="p-1 rounded-md bg-primary/10 text-primary">{item.icon}</div>
-                  {item.text}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-4 p-4 rounded-2xl bg-secondary/30 border border-border/40">
-              <div>
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
-                  <TrendingUp className="h-3 w-3" /> Hot Sector
-                </div>
-                <div className="text-xl font-bold">Sector 84</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">+38% engagement</div>
-              </div>
-              <div className="flex flex-col justify-center border-l border-border/50 pl-4">
-                <div className="text-xs font-medium">
-                  <span className="text-foreground font-bold">6</span> Live Tours
-                </div>
-                <div className="text-xs font-medium mt-0.5">
-                  <span className="text-foreground font-bold">2</span> Masterclasses
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex items-center gap-3">
-              <Button size="lg" className="flex-1 rounded-xl shadow-lg shadow-primary/20">
-                Get Reminded
-              </Button>
-              <Button size="lg" variant="outline" className="flex-1 rounded-xl">
-                View All Sessions
-              </Button>
-            </div>
-          </div>
-
-          {/* Video Showcase Area (50%) */}
-          <div className="flex-1 p-6 lg:p-8 bg-secondary/10 flex flex-col justify-center">
-            <div className="relative w-full aspect-video overflow-hidden rounded-2xl border border-white/10 shadow-2xl group bg-black">
-              <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
-              <video
-                src="/launchvideo.mp4"
-                className="h-full w-full object-contain"
-                controls
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-primary/20 grid place-items-center">
-                  <Eye className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Demo Content
-                  </div>
-                  <div className="text-xs font-semibold">"Actual Apartment Sound Testing"</div>
-                </div>
-              </div>
-              <div className="text-[10px] text-muted-foreground italic px-3 py-1 rounded-full bg-card border border-border">
-                Preview Mode
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>{" "}
+      <MasterclassPlugin />
     </div>
   );
 }
