@@ -18,7 +18,7 @@ function ensureDataDir() {
 // Load events from file
 function loadEventsFromFile(): Map<string, Event> {
   ensureDataDir();
-  
+
   if (!fs.existsSync(DATA_FILE)) {
     return new Map();
   }
@@ -27,7 +27,7 @@ function loadEventsFromFile(): Map<string, Event> {
     const data = fs.readFileSync(DATA_FILE, "utf-8");
     const events: Event[] = JSON.parse(data);
     const map = new Map<string, Event>();
-    
+
     // Convert date strings back to Date objects
     events.forEach((event) => {
       map.set(event._id!, {
@@ -36,7 +36,7 @@ function loadEventsFromFile(): Map<string, Event> {
         updatedAt: new Date(event.updatedAt),
       });
     });
-    
+
     return map;
   } catch (error) {
     console.error("Error loading events from file:", error);
@@ -47,7 +47,7 @@ function loadEventsFromFile(): Map<string, Event> {
 // Save events to file
 function saveEventsToFile(eventsMap: Map<string, Event>) {
   ensureDataDir();
-  
+
   try {
     const events = Array.from(eventsMap.values());
     fs.writeFileSync(DATA_FILE, JSON.stringify(events, null, 2), "utf-8");
@@ -62,7 +62,7 @@ let idCounter = eventsStore.size + 1;
 
 export function createEvent(data: CreateEventInput): Event {
   const id = `event_${Date.now()}_${idCounter++}`;
-  
+
   const event: Event = {
     _id: id,
     ...data,
@@ -74,13 +74,13 @@ export function createEvent(data: CreateEventInput): Event {
 
   eventsStore.set(id, event);
   saveEventsToFile(eventsStore);
-  
+
   return event;
 }
 
 export function getAllEvents(): Event[] {
   return Array.from(eventsStore.values()).sort(
-    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
   );
 }
 
@@ -100,7 +100,7 @@ export function updateEvent(id: string, data: Partial<Event>): Event | null {
 
   eventsStore.set(id, updated);
   saveEventsToFile(eventsStore);
-  
+
   return updated;
 }
 

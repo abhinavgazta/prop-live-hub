@@ -40,8 +40,8 @@ export function DiscoveryMap({ pins, onSelect }: { pins: Pin[]; onSelect?: (p: P
             pathOptions={{
               color: "transparent",
               fillColor:
-                p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#3b5fbf",
-              fillOpacity: p.type === "live" ? 0.18 : 0.08,
+                p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#94a3b8",
+              fillOpacity: p.type === "live" ? 0.18 : p.type === "property" ? 0.04 : 0.08,
             }}
           />
         ))}
@@ -73,7 +73,7 @@ export function DiscoveryMap({ pins, onSelect }: { pins: Pin[]; onSelect?: (p: P
       />
       <HeatGlow pins={pins} />
       {pins.map((p) => {
-        const color = p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#5E23DC";
+        const color = p.type === "live" ? "#e11d48" : p.type === "upcoming" ? "#0ea5b7" : "#94a3b8";
         return (
           <CircleMarker
             key={p.id}

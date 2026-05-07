@@ -54,12 +54,14 @@ npm run dev
 ### Error: "Cannot connect to MongoDB"
 
 **Solution 1: IP Whitelist**
+
 ```bash
 # MongoDB Atlas → Network Access → Add IP Address
 # Use 0.0.0.0/0 for development (allows all IPs)
 ```
 
 **Solution 2: Check Connection String**
+
 ```bash
 # Ensure .env has correct format:
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
@@ -71,6 +73,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 ```
 
 **Solution 3: Database User**
+
 ```bash
 # MongoDB Atlas → Database Access
 # Ensure user has "Read and write to any database" permissions
@@ -79,6 +82,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 ### Error: "Validation failed"
 
 Form fields are validated. Required fields:
+
 - Event Title (5-100 characters)
 - Event Type
 - Property Name
@@ -95,11 +99,11 @@ Form fields are validated. Required fields:
 ## 🎯 What Happens When You Create an Event
 
 ```
-User fills form → Form validation (Zod) → 
-Server function (createEventInDB) → 
-MongoDB insert → 
-Success response → 
-Toast notification → 
+User fills form → Form validation (Zod) →
+Server function (createEventInDB) →
+MongoDB insert →
+Success response →
+Toast notification →
 Redirect to /seller/host
 ```
 

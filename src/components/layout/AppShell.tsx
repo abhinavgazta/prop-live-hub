@@ -12,6 +12,7 @@ type NavItem = {
 
 const demandNav: NavItem[] = [
   { to: "/demand", label: "Discover", icon: MapPin },
+  { to: "/demand/my-events", label: "My Events", icon: ListChecks },
   { to: "/demand/live", label: "Live Room", icon: Radio, live: true },
   { to: "/demand/replay", label: "Replays", icon: PlayCircle },
 ];

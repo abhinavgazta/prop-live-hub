@@ -11,7 +11,9 @@ export const getLiveKitToken = createServerFn({ method: "POST" })
     const url = process.env.LIVEKIT_URL;
 
     if (!apiKey || !apiSecret || !url) {
-      throw new Error("LiveKit env vars missing. Set LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET.");
+      throw new Error(
+        "LiveKit env vars missing. Set LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET.",
+      );
     }
 
     const at = new AccessToken(apiKey, apiSecret, {

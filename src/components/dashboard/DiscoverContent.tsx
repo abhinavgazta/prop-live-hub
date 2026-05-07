@@ -18,9 +18,11 @@ import { DiscoveryMap, Pin } from "@/components/map/DiscoveryMap";
 import { Suspense } from "react";
 import { searchLocality, formatLocationName, type GeocodingResult } from "@/lib/geocoding";
 import {
-  PROPERTY_DATA,
   FILTER_OPTIONS,
   filterProperties,
+  getAllProperties,
+  registerForEvent,
+  isUserRegistered,
   type Property,
 } from "@/lib/property-data";
 
@@ -338,8 +340,8 @@ export function DiscoverMapSection({
             Upcoming
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            Property
+            <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
+            Completed
           </span>
         </div>
         <div className="glass pointer-events-auto rounded-xl px-3 py-2 text-xs text-muted-foreground">
@@ -355,24 +357,50 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
   const navigate = useNavigate();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+
+  // Load properties from localStorage
+  useEffect(() => {
+    const loadProperties = async () => {
+      const properties = await getAllProperties();
+      setAllProperties(properties);
+    };
+
+    loadProperties();
+
+    // Listen for storage and custom events
+    const handleUpdate = () => {
+      loadProperties();
+    };
+
+    window.addEventListener("storage", handleUpdate);
+    window.addEventListener("proplive_event_created", handleUpdate);
+    window.addEventListener("proplive_registration_changed", handleUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleUpdate);
+      window.removeEventListener("proplive_event_created", handleUpdate);
+      window.removeEventListener("proplive_registration_changed", handleUpdate);
+    };
+  }, []);
 
   // Filter properties based on search and active filters
-  const filteredProperties = filterProperties(PROPERTY_DATA, activeFilters, searchQuery);
+  const filteredProperties = filterProperties(allProperties, activeFilters, searchQuery);
 
   // Convert to pins for the map
   const pins = propertyToPins(filteredProperties);
 
   // Calculate statistics
   const stats = {
-    live: PROPERTY_DATA.filter((p) => p.type === "live").length,
-    upcoming: PROPERTY_DATA.filter((p) => p.type === "upcoming").length,
-    total: PROPERTY_DATA.length,
+    live: allProperties.filter((p) => p.type === "live").length,
+    upcoming: allProperties.filter((p) => p.type === "upcoming").length,
+    total: allProperties.length,
   };
 
   // Handle pin click on map
   const handlePinClick = (pin: Pin) => {
     // Find the full property data
-    const property = PROPERTY_DATA.find((p) => p.id === pin.id);
+    const property = allProperties.find((p) => p.id === pin.id);
     if (!property) return;
 
     // Navigate based on property type
@@ -399,7 +427,17 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
       />
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <DiscoverMapSection pins={pins} onPinClick={handlePinClick} />
-        <DiscoverSidebar properties={filteredProperties} dashboard={dashboard} />
+        <DiscoverSidebar
+          properties={filteredProperties}
+          dashboard={dashboard}
+          onPropertyUpdate={() => {
+            const loadProperties = async () => {
+              const properties = await getAllProperties();
+              setAllProperties(properties);
+            };
+            loadProperties();
+          }}
+        />
       </div>
     </div>
   );
@@ -408,12 +446,22 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
 export function DiscoverSidebar({
   properties,
   dashboard,
+  onPropertyUpdate,
 }: {
   properties: Property[];
   dashboard: "demand" | "seller";
+  onPropertyUpdate?: () => void;
 }) {
   const liveProperties = properties.filter((p) => p.type === "live").slice(0, 3);
   const upcoming = properties.filter((p) => p.type === "upcoming").slice(0, 3);
+  const allUpcoming = properties.filter((p) => p.type === "upcoming");
+
+  const handleRegister = (eventId: string) => {
+    const success = registerForEvent(eventId);
+    if (success && onPropertyUpdate) {
+      onPropertyUpdate();
+    }
+  };
 
   return (
     <aside className="flex flex-col gap-3">
@@ -440,27 +488,67 @@ export function DiscoverSidebar({
 
       {upcoming.length > 0 && (
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-teal" />
-            <h3 className="text-sm font-bold">Upcoming Tours</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-teal" />
+              <h3 className="text-sm font-bold">Upcoming Tours</h3>
+            </div>
+            {allUpcoming.length > 3 && (
+              <Link
+                to={`/${dashboard}/my-events`}
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                View all ({allUpcoming.length})
+              </Link>
+            )}
           </div>
           <div className="space-y-3">
-            {upcoming.map((property) => (
-              <div key={property.id} className="flex items-start gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
-                  <Building2 className="h-4 w-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">{property.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {property.liveDate || property.location}
+            {upcoming.map((property) => {
+              const isRegistered = isUserRegistered(property.id);
+              const registrationText = property.maxAttendees
+                ? `${property.registeredCount || 0}/${property.maxAttendees}`
+                : `${property.registeredCount || 0} registered`;
+
+              return (
+                <div key={property.id} className="flex items-start gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
+                    <Building2 className="h-4 w-4" />
                   </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="truncate text-sm font-semibold">{property.title}</div>
+                      {isRegistered && (
+                        <Badge
+                          variant="secondary"
+                          className="shrink-0 bg-emerald-500/10 text-emerald-600"
+                        >
+                          ✓ Registered
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {property.liveDate || property.location}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-muted-foreground">
+                      {registrationText}
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={isRegistered ? "ghost" : "outline"}
+                    className={
+                      isRegistered
+                        ? "h-7 cursor-default px-2 text-[11px] text-muted-foreground"
+                        : "h-7 px-2 text-[11px]"
+                    }
+                    onClick={() => !isRegistered && handleRegister(property.id)}
+                    disabled={isRegistered}
+                  >
+                    {isRegistered ? "✓" : "Register"}
+                  </Button>
                 </div>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
-                  Remind
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

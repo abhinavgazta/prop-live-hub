@@ -19,6 +19,7 @@ import { Route as SellerLiveRouteImport } from './routes/seller/live'
 import { Route as SellerHostRouteImport } from './routes/seller/host'
 import { Route as SellerCreateEventRouteImport } from './routes/seller/create-event'
 import { Route as DemandReplayRouteImport } from './routes/demand/replay'
+import { Route as DemandMyEventsRouteImport } from './routes/demand/my-events'
 import { Route as DemandLiveRouteImport } from './routes/demand/live'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +72,11 @@ const DemandReplayRoute = DemandReplayRouteImport.update({
   path: '/demand/replay',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemandMyEventsRoute = DemandMyEventsRouteImport.update({
+  id: '/demand/my-events',
+  path: '/demand/my-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemandLiveRoute = DemandLiveRouteImport.update({
   id: '/demand/live',
   path: '/demand/live',
@@ -80,6 +86,7 @@ const DemandLiveRoute = DemandLiveRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demand/live': typeof DemandLiveRoute
+  '/demand/my-events': typeof DemandMyEventsRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
   '/seller/host': typeof SellerHostRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demand/live': typeof DemandLiveRoute
+  '/demand/my-events': typeof DemandMyEventsRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
   '/seller/host': typeof SellerHostRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/demand/live': typeof DemandLiveRoute
+  '/demand/my-events': typeof DemandMyEventsRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
   '/seller/host': typeof SellerHostRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/demand/live'
+    | '/demand/my-events'
     | '/demand/replay'
     | '/seller/create-event'
     | '/seller/host'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demand/live'
+    | '/demand/my-events'
     | '/demand/replay'
     | '/seller/create-event'
     | '/seller/host'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/demand/live'
+    | '/demand/my-events'
     | '/demand/replay'
     | '/seller/create-event'
     | '/seller/host'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DemandLiveRoute: typeof DemandLiveRoute
+  DemandMyEventsRoute: typeof DemandMyEventsRoute
   DemandReplayRoute: typeof DemandReplayRoute
   SellerCreateEventRoute: typeof SellerCreateEventRoute
   SellerHostRoute: typeof SellerHostRoute
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemandReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demand/my-events': {
+      id: '/demand/my-events'
+      path: '/demand/my-events'
+      fullPath: '/demand/my-events'
+      preLoaderRoute: typeof DemandMyEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demand/live': {
       id: '/demand/live'
       path: '/demand/live'
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemandLiveRoute: DemandLiveRoute,
+  DemandMyEventsRoute: DemandMyEventsRoute,
   DemandReplayRoute: DemandReplayRoute,
   SellerCreateEventRoute: SellerCreateEventRoute,
   SellerHostRoute: SellerHostRoute,
