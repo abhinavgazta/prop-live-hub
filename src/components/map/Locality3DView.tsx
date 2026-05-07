@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Maximize2, RotateCcw, Eye, Users, Building2, Flame } from "lucide-react";
+import type * as THREE from "three";
 import type { LocalityInsight } from "@/lib/mockMapData";
 
 type Props = {

@@ -30,6 +30,8 @@ export type DiscoveryMapProps = {
   liveSessions?: LiveSession[];
   replays?: ReplaySession[];
   localities?: LocalityInsight[];
+  /** Back-compat: callers passing only `pins` use this. */
+  onSelect?: (p: Pin) => void;
   onSelectPin?: (p: Pin) => void;
   onSelect?: (p: Pin) => void; // Backwards compatibility alias for onSelectPin
   onSelectLive?: (s: LiveSession) => void;
@@ -45,6 +47,7 @@ export function DiscoveryMap({
   liveSessions = [],
   replays = [],
   localities = [],
+  onSelect,
   onSelectPin,
   onSelect, // Backwards compatibility
   onSelectLive,
@@ -54,8 +57,7 @@ export function DiscoveryMap({
   defaultView = "streets",
   defaultEnabled,
 }: DiscoveryMapProps) {
-  // Support both onSelect (old) and onSelectPin (new) for backwards compatibility
-  const handlePinClick = onSelectPin || onSelect;
+  const handlePinClick = onSelectPin ?? onSelect;
   const [MapComponents, setMapComponents] = useState<typeof import("react-leaflet") | null>(null);
   const [activeView, setActiveView] = useState<MapViewId>(defaultView);
   const [layerSwitcherOpen, setLayerSwitcherOpen] = useState(false);
@@ -378,6 +380,7 @@ export function DiscoveryMap({
               fillOpacity: 1,
             }}
             eventHandlers={{
+              click: () => handlePinClick?.(p),
               click: () => handlePinClick?.(p),
               mouseover: (e: any) => e.target.setStyle({ fillOpacity: 0.7, weight: 3 }),
               mouseout: (e: any) => e.target.setStyle({ fillOpacity: 1, weight: 2 }),

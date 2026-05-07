@@ -35,7 +35,7 @@ const DiscoveryMap = lazy(() =>
 const Locality3DView = lazy(() =>
   typeof window !== "undefined"
     ? import("@/components/map/Locality3DView").then((m) => ({ default: m.Locality3DView }))
-    : Promise.resolve({ default: () => null }),
+    : Promise.resolve({ default: (() => <></>) as typeof import("@/components/map/Locality3DView").Locality3DView }),
 );
 
 export const Route = createFileRoute("/")({
@@ -216,49 +216,56 @@ function Index() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-teal" />
-              <h3 className="text-sm font-bold">Upcoming Masterclasses</h3>
-            </div>
-            <div className="space-y-3">
-              {mockLiveSessions
-                .filter((s) => s.type === "upcoming")
-                .map((s) => (
-                  <div key={s.id} className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
-                      <Building2 className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{s.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {s.locality} · {s.joiners.toLocaleString()} registered
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
-                      Remind
-                    </Button>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-secondary/30 p-4">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
-              <TrendingUp className="h-3.5 w-3.5" /> Hot Sector
-            </div>
-            <div className="text-xl font-bold">
-              {[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.name}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">
-              +{[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.yoyAppreciation}% YoY
-              · hottest engagement today
-            </div>
-            <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs font-semibold">
-              Join the conversation
-            </Button>
-          </div>
         </aside>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px]">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-teal" />
+            <h3 className="text-sm font-bold">Upcoming Masterclasses</h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {mockLiveSessions
+              .filter((s) => s.type === "upcoming")
+              .map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-start gap-3 rounded-xl border border-border/60 bg-secondary/20 p-3"
+                >
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
+                    <Building2 className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">{s.title}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {s.locality} · {s.joiners.toLocaleString()} registered
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
+                    Remind
+                  </Button>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-secondary/30 p-4">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
+            <TrendingUp className="h-3.5 w-3.5" /> Hot Sector
+          </div>
+          <div className="text-xl font-bold">
+            {[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.name}
+          </div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            +
+            {[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.yoyAppreciation}% YoY ·
+            hottest engagement today
+          </div>
+          <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs font-semibold">
+            Join the conversation
+          </Button>
+        </div>
       </div>
 
       {/* Live session details overlay */}
