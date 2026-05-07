@@ -33,7 +33,6 @@ export type DiscoveryMapProps = {
   /** Back-compat: callers passing only `pins` use this. */
   onSelect?: (p: Pin) => void;
   onSelectPin?: (p: Pin) => void;
-  onSelect?: (p: Pin) => void; // Backwards compatibility alias for onSelectPin
   onSelectLive?: (s: LiveSession) => void;
   onSelectReplay?: (r: ReplaySession) => void;
   onSelectLocality?: (l: LocalityInsight) => void;
@@ -49,7 +48,6 @@ export function DiscoveryMap({
   localities = [],
   onSelect,
   onSelectPin,
-  onSelect, // Backwards compatibility
   onSelectLive,
   onSelectReplay,
   onSelectLocality,
@@ -380,7 +378,6 @@ export function DiscoveryMap({
               fillOpacity: 1,
             }}
             eventHandlers={{
-              click: () => handlePinClick?.(p),
               click: () => handlePinClick?.(p),
               mouseover: (e: any) => e.target.setStyle({ fillOpacity: 0.7, weight: 3 }),
               mouseout: (e: any) => e.target.setStyle({ fillOpacity: 1, weight: 2 }),
