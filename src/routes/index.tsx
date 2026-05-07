@@ -306,24 +306,74 @@ function Index() {
               ))}
             </div>
           </div>
-
-          <div
-            className="rounded-2xl border border-border p-4 text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-80">
-              <TrendingUp className="h-3.5 w-3.5" />
-              Hot sector this week
-            </div>
-            <div className="mt-2 text-2xl font-bold">Sector 84</div>
-            <div className="text-xs opacity-80">
-              +38% engagement · 6 live tours · 2 masterclasses
-            </div>
-            <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs">
-              Join the conversation
-            </Button>
-          </div>
         </aside>
+      </div>
+
+      <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-soft)] relative">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+
+        <div className="flex flex-col lg:flex-row relative">
+          {/* Main Masterclass Content */}
+          <div className="flex-1 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-border/50">
+            <Badge className="mb-4 bg-teal/15 text-teal border-teal/20 hover:bg-teal/20 transition-colors">
+              Featured Masterclass
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              Master the Gurgaon Market
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-xl">
+              Peek inside our exclusive resident-led masterclasses. From Sector 84 deep-dives to
+              Golf Course Road pricing secrets — get the truth before you invest.
+            </p>
+
+            <div className="mt-8 grid grid-cols-2 gap-6 p-5 rounded-2xl bg-secondary/50 border border-border/40">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+                  <TrendingUp className="h-3.5 w-3.5" /> Hot Sector
+                </div>
+                <div className="text-2xl font-bold">Sector 84</div>
+                <div className="text-[11px] text-muted-foreground mt-1">+38% engagement today</div>
+              </div>
+              <div className="flex flex-col justify-center border-l border-border/50 pl-6">
+                <div className="text-xs font-medium text-muted-foreground">
+                  <span className="text-foreground font-bold">6</span> Live Tours
+                </div>
+                <div className="text-xs font-medium text-muted-foreground mt-1">
+                  <span className="text-foreground font-bold">2</span> Masterclasses
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center gap-4">
+              <Button size="lg" className="rounded-xl px-8 shadow-lg shadow-primary/20">
+                Join Next Live Session
+              </Button>
+              <Button size="lg" variant="ghost" className="rounded-xl">
+                View Schedule
+              </Button>
+            </div>
+          </div>
+
+          {/* Video Showcase Area */}
+          <div className="lg:w-[480px] p-6 lg:p-8 bg-secondary/20 flex flex-col justify-center">
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/20 shadow-2xl group">
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
+              <video
+                src="/launchvideo.mp4"
+                className="h-full w-full object-cover"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            </div>
+            <p className="mt-4 text-center text-xs text-muted-foreground italic">
+              "The most honest property review I've ever seen." — Verified Resident
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
