@@ -477,9 +477,15 @@ export function DiscoverSidebar({
         <div className="text-xs opacity-80">
           {properties.filter((p) => p.sector.includes("84")).length} properties · High demand
         </div>
-        <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs">
-          Explore Sector 84
-        </Button>
+        <a
+          href="https://housing.com/sector-84-gurgaon-overview-P3vidvqx6uu31gzb4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs">
+            Explore Sector 84
+          </Button>
+        </a>
       </div>
     </aside>
   );
