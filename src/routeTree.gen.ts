@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReplayRouteImport } from './routes/replay'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ReplayRoute = ReplayRouteImport.update({
   id: '/replay',
   path: '/replay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiveRoute = LiveRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/live': typeof LiveRoute
+  '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/live': typeof LiveRoute
+  '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/live': typeof LiveRoute
+  '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/live' | '/replay'
+  fullPaths: '/' | '/live' | '/profile' | '/replay'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/live' | '/replay'
-  id: '__root__' | '/' | '/live' | '/replay'
+  to: '/' | '/live' | '/profile' | '/replay'
+  id: '__root__' | '/' | '/live' | '/profile' | '/replay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LiveRoute: typeof LiveRoute
+  ProfileRoute: typeof ProfileRoute
   ReplayRoute: typeof ReplayRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/replay'
       fullPath: '/replay'
       preLoaderRoute: typeof ReplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/live': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LiveRoute: LiveRoute,
+  ProfileRoute: ProfileRoute,
   ReplayRoute: ReplayRoute,
 }
 export const routeTree = rootRouteImport
