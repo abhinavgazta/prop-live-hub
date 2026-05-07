@@ -17,6 +17,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { DiscoveryMap, Pin } from "@/components/map/DiscoveryMap";
 import { Suspense } from "react";
 import { searchLocality, formatLocationName, type GeocodingResult } from "@/lib/geocoding";
+import { mockReplaySessions } from "@/lib/mockMapData";
 import {
   FILTER_OPTIONS,
   filterProperties,
@@ -301,9 +302,11 @@ export function LiveCard({
 export function DiscoverMapSection({
   pins,
   onPinClick,
+  onReplayClick,
 }: {
   pins: Pin[];
   onPinClick?: (pin: Pin) => void;
+  onReplayClick?: () => void;
 }) {
   return (
     <div className="relative h-[560px] overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
@@ -314,7 +317,12 @@ export function DiscoverMapSection({
           </div>
         }
       >
-        <Map pins={pins} onSelect={onPinClick} />
+        <Map
+          pins={pins}
+          replays={mockReplaySessions}
+          onSelect={onPinClick}
+          onSelectReplay={onReplayClick}
+        />
       </Suspense>
 
       <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-2">
@@ -341,7 +349,7 @@ export function DiscoverMapSection({
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs">
             <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
-            Completed
+            Replays
           </span>
         </div>
         <div className="glass pointer-events-auto rounded-xl px-3 py-2 text-xs text-muted-foreground">
@@ -416,6 +424,11 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
     }
   };
 
+  // Handle replay click on map
+  const handleReplayClick = () => {
+    navigate({ to: `/${dashboard}/replay` });
+  };
+
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
       <DiscoverHeader propertyCount={stats} />
@@ -426,7 +439,11 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
         setSearchQuery={setSearchQuery}
       />
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        <DiscoverMapSection pins={pins} onPinClick={handlePinClick} />
+        <DiscoverMapSection
+          pins={pins}
+          onPinClick={handlePinClick}
+          onReplayClick={handleReplayClick}
+        />
         <DiscoverSidebar
           properties={filteredProperties}
           dashboard={dashboard}
