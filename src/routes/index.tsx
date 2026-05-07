@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useState } from "react";
 import {
   Search,
@@ -39,9 +39,6 @@ const Locality3DView = lazy(() =>
 );
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/demand" });
-  },
   component: Index,
   head: () => ({
     meta: [
