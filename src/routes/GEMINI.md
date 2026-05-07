@@ -14,17 +14,17 @@ This directory uses [TanStack Router](https://tanstack.com/router) for file-base
 2. Define the route using `createFileRoute`:
 
 ```tsx
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/settings')({
+export const Route = createFileRoute("/settings")({
   component: SettingsComponent,
   loader: async () => {
     // Fetch data before the route renders
   },
-})
+});
 
 function SettingsComponent() {
-  return <div>Settings Page</div>
+  return <div>Settings Page</div>;
 }
 ```
 

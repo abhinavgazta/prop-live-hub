@@ -161,18 +161,36 @@
 }
 
 @keyframes pulse-live {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.22 25 / 0.6); }
-  50% { box-shadow: 0 0 0 14px oklch(0.62 0.22 25 / 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.62 0.22 25 / 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 14px oklch(0.62 0.22 25 / 0);
+  }
 }
-.pulse-live { animation: pulse-live 1.8s ease-out infinite; }
+.pulse-live {
+  animation: pulse-live 1.8s ease-out infinite;
+}
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.15); }
-  50% { transform: scale(0.97); }
-  75% { transform: scale(1.08); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(0.97);
+  }
+  75% {
+    transform: scale(1.08);
+  }
 }
-.heartbeat { animation: heartbeat 1.4s ease-in-out infinite; }
+.heartbeat {
+  animation: heartbeat 1.4s ease-in-out infinite;
+}
 
 .glass {
   background: oklch(1 0 0 / 0.78);

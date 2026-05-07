@@ -28,18 +28,21 @@ PropLive is a hyper-local property discovery and live-streaming platform, curren
 ## Development Workflow
 
 ### Scripts
+
 - `npm run dev`: Start the development server.
 - `npm run build`: Build for production.
 - `npm run lint`: Run ESLint for code quality.
 - `npm run format`: Format code using Prettier.
 
 ### Conventions
+
 - **Routing:** Always use file-based routing in `src/routes/`. Follow TanStack Router conventions for loaders and search params.
 - **Components:** Prefer functional components with TypeScript. Use Shadcn UI components from `src/components/ui/` for consistency.
 - **Styling:** Use Tailwind CSS utility classes. Avoid inline styles unless necessary for dynamic values. Leverage CSS variables defined in `src/styles.css`.
 - **Types:** Maintain strict TypeScript typing across the codebase. Use Zod for runtime validation and schema definitions.
 
 ## Key Files
+
 - `src/router.tsx`: Router instance creation.
 - `src/routes/__root.tsx`: Root layout and provider setup.
 - `src/server.ts`: Entry point for the Cloudflare Worker server.

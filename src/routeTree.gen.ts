@@ -9,106 +9,146 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ReplayRouteImport } from './routes/replay'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LiveRouteImport } from './routes/live'
-import { Route as HostRouteImport } from './routes/host'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerIndexRouteImport } from './routes/seller/index'
+import { Route as DemandIndexRouteImport } from './routes/demand/index'
+import { Route as SellerReputationRouteImport } from './routes/seller/reputation'
+import { Route as SellerReplayRouteImport } from './routes/seller/replay'
+import { Route as SellerLiveRouteImport } from './routes/seller/live'
+import { Route as SellerHostRouteImport } from './routes/seller/host'
+import { Route as DemandReplayRouteImport } from './routes/demand/replay'
+import { Route as DemandLiveRouteImport } from './routes/demand/live'
 
-const ReplayRoute = ReplayRouteImport.update({
-  id: '/replay',
-  path: '/replay',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LiveRoute = LiveRouteImport.update({
-  id: '/live',
-  path: '/live',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HostRoute = HostRouteImport.update({
-  id: '/host',
-  path: '/host',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/seller/',
+  path: '/seller/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemandIndexRoute = DemandIndexRouteImport.update({
+  id: '/demand/',
+  path: '/demand/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerReputationRoute = SellerReputationRouteImport.update({
+  id: '/seller/reputation',
+  path: '/seller/reputation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerReplayRoute = SellerReplayRouteImport.update({
+  id: '/seller/replay',
+  path: '/seller/replay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerLiveRoute = SellerLiveRouteImport.update({
+  id: '/seller/live',
+  path: '/seller/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerHostRoute = SellerHostRouteImport.update({
+  id: '/seller/host',
+  path: '/seller/host',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemandReplayRoute = DemandReplayRouteImport.update({
+  id: '/demand/replay',
+  path: '/demand/replay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemandLiveRoute = DemandLiveRouteImport.update({
+  id: '/demand/live',
+  path: '/demand/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/host': typeof HostRoute
-  '/live': typeof LiveRoute
-  '/profile': typeof ProfileRoute
-  '/replay': typeof ReplayRoute
+  '/demand/live': typeof DemandLiveRoute
+  '/demand/replay': typeof DemandReplayRoute
+  '/seller/host': typeof SellerHostRoute
+  '/seller/live': typeof SellerLiveRoute
+  '/seller/replay': typeof SellerReplayRoute
+  '/seller/reputation': typeof SellerReputationRoute
+  '/demand/': typeof DemandIndexRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/host': typeof HostRoute
-  '/live': typeof LiveRoute
-  '/profile': typeof ProfileRoute
-  '/replay': typeof ReplayRoute
+  '/demand/live': typeof DemandLiveRoute
+  '/demand/replay': typeof DemandReplayRoute
+  '/seller/host': typeof SellerHostRoute
+  '/seller/live': typeof SellerLiveRoute
+  '/seller/replay': typeof SellerReplayRoute
+  '/seller/reputation': typeof SellerReputationRoute
+  '/demand': typeof DemandIndexRoute
+  '/seller': typeof SellerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/host': typeof HostRoute
-  '/live': typeof LiveRoute
-  '/profile': typeof ProfileRoute
-  '/replay': typeof ReplayRoute
+  '/demand/live': typeof DemandLiveRoute
+  '/demand/replay': typeof DemandReplayRoute
+  '/seller/host': typeof SellerHostRoute
+  '/seller/live': typeof SellerLiveRoute
+  '/seller/replay': typeof SellerReplayRoute
+  '/seller/reputation': typeof SellerReputationRoute
+  '/demand/': typeof DemandIndexRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/host' | '/live' | '/profile' | '/replay'
+  fullPaths:
+    | '/'
+    | '/demand/live'
+    | '/demand/replay'
+    | '/seller/host'
+    | '/seller/live'
+    | '/seller/replay'
+    | '/seller/reputation'
+    | '/demand/'
+    | '/seller/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/host' | '/live' | '/profile' | '/replay'
-  id: '__root__' | '/' | '/host' | '/live' | '/profile' | '/replay'
+  to:
+    | '/'
+    | '/demand/live'
+    | '/demand/replay'
+    | '/seller/host'
+    | '/seller/live'
+    | '/seller/replay'
+    | '/seller/reputation'
+    | '/demand'
+    | '/seller'
+  id:
+    | '__root__'
+    | '/'
+    | '/demand/live'
+    | '/demand/replay'
+    | '/seller/host'
+    | '/seller/live'
+    | '/seller/replay'
+    | '/seller/reputation'
+    | '/demand/'
+    | '/seller/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  HostRoute: typeof HostRoute
-  LiveRoute: typeof LiveRoute
-  ProfileRoute: typeof ProfileRoute
-  ReplayRoute: typeof ReplayRoute
+  DemandLiveRoute: typeof DemandLiveRoute
+  DemandReplayRoute: typeof DemandReplayRoute
+  SellerHostRoute: typeof SellerHostRoute
+  SellerLiveRoute: typeof SellerLiveRoute
+  SellerReplayRoute: typeof SellerReplayRoute
+  SellerReputationRoute: typeof SellerReputationRoute
+  DemandIndexRoute: typeof DemandIndexRoute
+  SellerIndexRoute: typeof SellerIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/replay': {
-      id: '/replay'
-      path: '/replay'
-      fullPath: '/replay'
-      preLoaderRoute: typeof ReplayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/live': {
-      id: '/live'
-      path: '/live'
-      fullPath: '/live'
-      preLoaderRoute: typeof LiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/host': {
-      id: '/host'
-      path: '/host'
-      fullPath: '/host'
-      preLoaderRoute: typeof HostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -116,15 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/': {
+      id: '/seller/'
+      path: '/seller'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demand/': {
+      id: '/demand/'
+      path: '/demand'
+      fullPath: '/demand/'
+      preLoaderRoute: typeof DemandIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/reputation': {
+      id: '/seller/reputation'
+      path: '/seller/reputation'
+      fullPath: '/seller/reputation'
+      preLoaderRoute: typeof SellerReputationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/replay': {
+      id: '/seller/replay'
+      path: '/seller/replay'
+      fullPath: '/seller/replay'
+      preLoaderRoute: typeof SellerReplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/live': {
+      id: '/seller/live'
+      path: '/seller/live'
+      fullPath: '/seller/live'
+      preLoaderRoute: typeof SellerLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/host': {
+      id: '/seller/host'
+      path: '/seller/host'
+      fullPath: '/seller/host'
+      preLoaderRoute: typeof SellerHostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demand/replay': {
+      id: '/demand/replay'
+      path: '/demand/replay'
+      fullPath: '/demand/replay'
+      preLoaderRoute: typeof DemandReplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demand/live': {
+      id: '/demand/live'
+      path: '/demand/live'
+      fullPath: '/demand/live'
+      preLoaderRoute: typeof DemandLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  HostRoute: HostRoute,
-  LiveRoute: LiveRoute,
-  ProfileRoute: ProfileRoute,
-  ReplayRoute: ReplayRoute,
+  DemandLiveRoute: DemandLiveRoute,
+  DemandReplayRoute: DemandReplayRoute,
+  SellerHostRoute: SellerHostRoute,
+  SellerLiveRoute: SellerLiveRoute,
+  SellerReplayRoute: SellerReplayRoute,
+  SellerReputationRoute: SellerReputationRoute,
+  DemandIndexRoute: DemandIndexRoute,
+  SellerIndexRoute: SellerIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
