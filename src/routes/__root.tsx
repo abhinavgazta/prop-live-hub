@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import livekitCss from "@livekit/components-styles?url";
 import { AppShell } from "@/components/layout/AppShell";
 
 function NotFoundComponent() {
@@ -97,6 +98,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
       },
+      { rel: "stylesheet", href: livekitCss },
     ],
   }),
   shellComponent: RootShell,

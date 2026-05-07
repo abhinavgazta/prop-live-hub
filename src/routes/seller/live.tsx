@@ -1,9 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LiveRoomContent } from "@/components/dashboard/LiveRoomContent";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/seller/live")({
-  component: () => <LiveRoomContent />,
-  head: () => ({
-    meta: [{ title: "Live Room — PropLive" }],
-  }),
+  beforeLoad: () => {
+    throw redirect({ to: "/seller/host" });
+  },
 });
