@@ -1,22 +1,30 @@
-import { createServerFn } from "@tanstack/react-start";
+const LIVE_EVENT_ID_KEY = "proplive_live_event_id";
+const LIVE_STARTED_AT_KEY = "proplive_live_started_at";
 
-let liveEventId: string | null = null;
-let liveStartedAt: number | null = null;
+export async function setLiveBroadcast(input: { data: { eventId: string } }) {
+  if (typeof window === "undefined") {
+    return { eventId: input.data.eventId, startedAt: Date.now() };
+  }
+  const startedAt = Date.now();
+  localStorage.setItem(LIVE_EVENT_ID_KEY, input.data.eventId);
+  localStorage.setItem(LIVE_STARTED_AT_KEY, String(startedAt));
+  return { eventId: input.data.eventId, startedAt };
+}
 
-export const setLiveBroadcast = createServerFn({ method: "POST" })
-  .inputValidator((input: { eventId: string }) => input)
-  .handler(async ({ data }) => {
-    liveEventId = data.eventId;
-    liveStartedAt = Date.now();
-    return { eventId: liveEventId, startedAt: liveStartedAt };
-  });
-
-export const clearLiveBroadcast = createServerFn({ method: "POST" }).handler(async () => {
-  liveEventId = null;
-  liveStartedAt = null;
+export async function clearLiveBroadcast() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(LIVE_EVENT_ID_KEY);
+    localStorage.removeItem(LIVE_STARTED_AT_KEY);
+  }
   return { ok: true };
-});
+}
 
-export const getLiveBroadcast = createServerFn({ method: "GET" }).handler(async () => {
-  return { eventId: liveEventId, startedAt: liveStartedAt };
-});
+export async function getLiveBroadcast() {
+  if (typeof window === "undefined") {
+    return { eventId: null as string | null, startedAt: null as number | null };
+  }
+  const eventId = localStorage.getItem(LIVE_EVENT_ID_KEY);
+  const startedAtRaw = localStorage.getItem(LIVE_STARTED_AT_KEY);
+  const startedAt = startedAtRaw ? Number(startedAtRaw) : null;
+  return { eventId, startedAt };
+}

@@ -30,6 +30,23 @@ import { getLiveBroadcast } from "@/lib/live-broadcast";
 
 const Map = DiscoveryMap;
 
+function getEventDetailRoute(
+  property: Property,
+  dashboard: "demand" | "seller",
+): `/demand/event-detail` | `/seller/event-detail` | `/demand/prelaunch` | `/seller/prelaunch` {
+  const normalizedType = property.eventType?.toLowerCase().replace(/\s+/g, "-");
+  const isPrelaunch =
+    normalizedType === "prelaunch" ||
+    normalizedType === "pre-launch" ||
+    normalizedType === "launch-event";
+
+  if (isPrelaunch) {
+    return `/${dashboard}/prelaunch` as `/demand/prelaunch` | `/seller/prelaunch`;
+  }
+
+  return `/${dashboard}/event-detail` as `/demand/event-detail` | `/seller/event-detail`;
+}
+
 // Convert property data to pins for the map
 function propertyToPins(properties: Property[]): Pin[] {
   return properties.map((p) => ({
@@ -247,7 +264,7 @@ export function LiveCard({
   property: Property;
   dashboard: "demand" | "seller";
 }) {
-  const to = `/${dashboard}/live`;
+  const to = getEventDetailRoute(property, dashboard);
   const isLive = property.type === "live";
 
   return (
@@ -450,11 +467,8 @@ export default function DiscoverContent({ dashboard }: { dashboard: "demand" | "
     if (!property) return;
 
     // Navigate based on property type
-    if (property.type === "live") {
-      navigate({ to: `/${dashboard}/live` });
-    } else if (property.type === "upcoming") {
-      // For upcoming events, navigate to live page where they can see scheduled tours
-      navigate({ to: `/${dashboard}/live` });
+    if (property.type === "live" || property.type === "upcoming") {
+      navigate({ to: getEventDetailRoute(property, dashboard) });
     } else {
       // For regular properties, navigate to discover page with search for that property
       // You could also create a property detail page in the future
@@ -563,6 +577,7 @@ export function DiscoverSidebar({
               const registrationText = property.maxAttendees
                 ? `${property.registeredCount || 0}/${property.maxAttendees}`
                 : `${property.registeredCount || 0} registered`;
+              const detailRoute = getEventDetailRoute(property, dashboard);
 
               return (
                 <div key={property.id} className="flex items-start gap-3">
@@ -592,19 +607,27 @@ export function DiscoverSidebar({
                       {registrationText}
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant={isRegistered ? "ghost" : "outline"}
-                    className={
-                      isRegistered
-                        ? "h-7 cursor-default px-2 text-[11px] text-muted-foreground"
-                        : "h-7 px-2 text-[11px]"
-                    }
-                    onClick={() => !isRegistered && handleRegister(property.id)}
-                    disabled={isRegistered}
-                  >
-                    {isRegistered ? "✓" : "Register"}
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href={`http://localhost:8080${detailRoute}`}
+                      className="text-[11px] font-semibold text-primary hover:underline"
+                    >
+                      View more
+                    </a>
+                    <Button
+                      size="sm"
+                      variant={isRegistered ? "ghost" : "outline"}
+                      className={
+                        isRegistered
+                          ? "h-7 cursor-default px-2 text-[11px] text-muted-foreground"
+                          : "h-7 px-2 text-[11px]"
+                      }
+                      onClick={() => !isRegistered && handleRegister(property.id)}
+                      disabled={isRegistered}
+                    >
+                      {isRegistered ? "✓" : "Register"}
+                    </Button>
+                  </div>
                 </div>
               );
             })}

@@ -23,6 +23,7 @@ export interface Property {
   liveDate?: string;
   registeredCount?: number;
   maxAttendees?: number;
+  eventType?: string;
 }
 
 export interface EventRegistration {
@@ -217,6 +218,7 @@ async function convertEventToProperty(event: StoredEvent): Promise<Property> {
     liveDate: eventType === "upcoming" ? `${dateStr} at ${timeStr}` : undefined,
     registeredCount: registeredCount,
     maxAttendees: parseInt(event.maxAttendees) || 500,
+    eventType: event.eventType,
   };
 }
 

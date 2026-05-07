@@ -14,13 +14,17 @@ import { Route as SellerIndexRouteImport } from './routes/seller/index'
 import { Route as DemandIndexRouteImport } from './routes/demand/index'
 import { Route as SellerReputationRouteImport } from './routes/seller/reputation'
 import { Route as SellerReplayRouteImport } from './routes/seller/replay'
+import { Route as SellerPrelaunchRouteImport } from './routes/seller/prelaunch'
 import { Route as SellerMyEventsRouteImport } from './routes/seller/my-events'
 import { Route as SellerLiveRouteImport } from './routes/seller/live'
 import { Route as SellerHostRouteImport } from './routes/seller/host'
+import { Route as SellerEventDetailRouteImport } from './routes/seller/event-detail'
 import { Route as SellerCreateEventRouteImport } from './routes/seller/create-event'
 import { Route as DemandReplayRouteImport } from './routes/demand/replay'
+import { Route as DemandPrelaunchRouteImport } from './routes/demand/prelaunch'
 import { Route as DemandMyEventsRouteImport } from './routes/demand/my-events'
 import { Route as DemandLiveRouteImport } from './routes/demand/live'
+import { Route as DemandEventDetailRouteImport } from './routes/demand/event-detail'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +51,11 @@ const SellerReplayRoute = SellerReplayRouteImport.update({
   path: '/seller/replay',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerPrelaunchRoute = SellerPrelaunchRouteImport.update({
+  id: '/seller/prelaunch',
+  path: '/seller/prelaunch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerMyEventsRoute = SellerMyEventsRouteImport.update({
   id: '/seller/my-events',
   path: '/seller/my-events',
@@ -62,6 +71,11 @@ const SellerHostRoute = SellerHostRouteImport.update({
   path: '/seller/host',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerEventDetailRoute = SellerEventDetailRouteImport.update({
+  id: '/seller/event-detail',
+  path: '/seller/event-detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerCreateEventRoute = SellerCreateEventRouteImport.update({
   id: '/seller/create-event',
   path: '/seller/create-event',
@@ -70,6 +84,11 @@ const SellerCreateEventRoute = SellerCreateEventRouteImport.update({
 const DemandReplayRoute = DemandReplayRouteImport.update({
   id: '/demand/replay',
   path: '/demand/replay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemandPrelaunchRoute = DemandPrelaunchRouteImport.update({
+  id: '/demand/prelaunch',
+  path: '/demand/prelaunch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemandMyEventsRoute = DemandMyEventsRouteImport.update({
@@ -82,16 +101,25 @@ const DemandLiveRoute = DemandLiveRouteImport.update({
   path: '/demand/live',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemandEventDetailRoute = DemandEventDetailRouteImport.update({
+  id: '/demand/event-detail',
+  path: '/demand/event-detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demand/event-detail': typeof DemandEventDetailRoute
   '/demand/live': typeof DemandLiveRoute
   '/demand/my-events': typeof DemandMyEventsRoute
+  '/demand/prelaunch': typeof DemandPrelaunchRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
+  '/seller/event-detail': typeof SellerEventDetailRoute
   '/seller/host': typeof SellerHostRoute
   '/seller/live': typeof SellerLiveRoute
   '/seller/my-events': typeof SellerMyEventsRoute
+  '/seller/prelaunch': typeof SellerPrelaunchRoute
   '/seller/replay': typeof SellerReplayRoute
   '/seller/reputation': typeof SellerReputationRoute
   '/demand/': typeof DemandIndexRoute
@@ -99,13 +127,17 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demand/event-detail': typeof DemandEventDetailRoute
   '/demand/live': typeof DemandLiveRoute
   '/demand/my-events': typeof DemandMyEventsRoute
+  '/demand/prelaunch': typeof DemandPrelaunchRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
+  '/seller/event-detail': typeof SellerEventDetailRoute
   '/seller/host': typeof SellerHostRoute
   '/seller/live': typeof SellerLiveRoute
   '/seller/my-events': typeof SellerMyEventsRoute
+  '/seller/prelaunch': typeof SellerPrelaunchRoute
   '/seller/replay': typeof SellerReplayRoute
   '/seller/reputation': typeof SellerReputationRoute
   '/demand': typeof DemandIndexRoute
@@ -114,13 +146,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/demand/event-detail': typeof DemandEventDetailRoute
   '/demand/live': typeof DemandLiveRoute
   '/demand/my-events': typeof DemandMyEventsRoute
+  '/demand/prelaunch': typeof DemandPrelaunchRoute
   '/demand/replay': typeof DemandReplayRoute
   '/seller/create-event': typeof SellerCreateEventRoute
+  '/seller/event-detail': typeof SellerEventDetailRoute
   '/seller/host': typeof SellerHostRoute
   '/seller/live': typeof SellerLiveRoute
   '/seller/my-events': typeof SellerMyEventsRoute
+  '/seller/prelaunch': typeof SellerPrelaunchRoute
   '/seller/replay': typeof SellerReplayRoute
   '/seller/reputation': typeof SellerReputationRoute
   '/demand/': typeof DemandIndexRoute
@@ -130,13 +166,17 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/demand/event-detail'
     | '/demand/live'
     | '/demand/my-events'
+    | '/demand/prelaunch'
     | '/demand/replay'
     | '/seller/create-event'
+    | '/seller/event-detail'
     | '/seller/host'
     | '/seller/live'
     | '/seller/my-events'
+    | '/seller/prelaunch'
     | '/seller/replay'
     | '/seller/reputation'
     | '/demand/'
@@ -144,13 +184,17 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/demand/event-detail'
     | '/demand/live'
     | '/demand/my-events'
+    | '/demand/prelaunch'
     | '/demand/replay'
     | '/seller/create-event'
+    | '/seller/event-detail'
     | '/seller/host'
     | '/seller/live'
     | '/seller/my-events'
+    | '/seller/prelaunch'
     | '/seller/replay'
     | '/seller/reputation'
     | '/demand'
@@ -158,13 +202,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/demand/event-detail'
     | '/demand/live'
     | '/demand/my-events'
+    | '/demand/prelaunch'
     | '/demand/replay'
     | '/seller/create-event'
+    | '/seller/event-detail'
     | '/seller/host'
     | '/seller/live'
     | '/seller/my-events'
+    | '/seller/prelaunch'
     | '/seller/replay'
     | '/seller/reputation'
     | '/demand/'
@@ -173,13 +221,17 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DemandEventDetailRoute: typeof DemandEventDetailRoute
   DemandLiveRoute: typeof DemandLiveRoute
   DemandMyEventsRoute: typeof DemandMyEventsRoute
+  DemandPrelaunchRoute: typeof DemandPrelaunchRoute
   DemandReplayRoute: typeof DemandReplayRoute
   SellerCreateEventRoute: typeof SellerCreateEventRoute
+  SellerEventDetailRoute: typeof SellerEventDetailRoute
   SellerHostRoute: typeof SellerHostRoute
   SellerLiveRoute: typeof SellerLiveRoute
   SellerMyEventsRoute: typeof SellerMyEventsRoute
+  SellerPrelaunchRoute: typeof SellerPrelaunchRoute
   SellerReplayRoute: typeof SellerReplayRoute
   SellerReputationRoute: typeof SellerReputationRoute
   DemandIndexRoute: typeof DemandIndexRoute
@@ -223,6 +275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/prelaunch': {
+      id: '/seller/prelaunch'
+      path: '/seller/prelaunch'
+      fullPath: '/seller/prelaunch'
+      preLoaderRoute: typeof SellerPrelaunchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/my-events': {
       id: '/seller/my-events'
       path: '/seller/my-events'
@@ -244,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerHostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/event-detail': {
+      id: '/seller/event-detail'
+      path: '/seller/event-detail'
+      fullPath: '/seller/event-detail'
+      preLoaderRoute: typeof SellerEventDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/create-event': {
       id: '/seller/create-event'
       path: '/seller/create-event'
@@ -256,6 +322,13 @@ declare module '@tanstack/react-router' {
       path: '/demand/replay'
       fullPath: '/demand/replay'
       preLoaderRoute: typeof DemandReplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demand/prelaunch': {
+      id: '/demand/prelaunch'
+      path: '/demand/prelaunch'
+      fullPath: '/demand/prelaunch'
+      preLoaderRoute: typeof DemandPrelaunchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demand/my-events': {
@@ -272,18 +345,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemandLiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demand/event-detail': {
+      id: '/demand/event-detail'
+      path: '/demand/event-detail'
+      fullPath: '/demand/event-detail'
+      preLoaderRoute: typeof DemandEventDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemandEventDetailRoute: DemandEventDetailRoute,
   DemandLiveRoute: DemandLiveRoute,
   DemandMyEventsRoute: DemandMyEventsRoute,
+  DemandPrelaunchRoute: DemandPrelaunchRoute,
   DemandReplayRoute: DemandReplayRoute,
   SellerCreateEventRoute: SellerCreateEventRoute,
+  SellerEventDetailRoute: SellerEventDetailRoute,
   SellerHostRoute: SellerHostRoute,
   SellerLiveRoute: SellerLiveRoute,
   SellerMyEventsRoute: SellerMyEventsRoute,
+  SellerPrelaunchRoute: SellerPrelaunchRoute,
   SellerReplayRoute: SellerReplayRoute,
   SellerReputationRoute: SellerReputationRoute,
   DemandIndexRoute: DemandIndexRoute,
