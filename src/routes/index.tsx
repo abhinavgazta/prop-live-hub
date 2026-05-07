@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -8,16 +8,34 @@ import {
   TrendingUp,
   Eye,
   ChevronRight,
+  Users,
+  PlayCircle,
+  Flame,
+  Box,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Pin } from "@/components/map/DiscoveryMap";
 import { MasterclassPlugin } from "@/components/layout/MasterclassPlugin";
+import {
+  mockLiveSessions,
+  mockLocalities,
+  mockReplaySessions,
+  type LiveSession,
+  type LocalityInsight,
+  type ReplaySession,
+} from "@/lib/mockMapData";
 
 const DiscoveryMap = lazy(() =>
   typeof window !== "undefined"
     ? import("@/components/map/DiscoveryMap").then((m) => ({ default: m.DiscoveryMap }))
     : Promise.resolve({ default: () => <div className="h-full w-full bg-[#f6f8fb]" /> }),
+);
+
+const Locality3DView = lazy(() =>
+  typeof window !== "undefined"
+    ? import("@/components/map/Locality3DView").then((m) => ({ default: m.Locality3DView }))
+    : Promise.resolve({ default: () => null }),
 );
 
 export const Route = createFileRoute("/")({
@@ -33,75 +51,6 @@ export const Route = createFileRoute("/")({
     ],
   }),
 });
-
-const PINS: Pin[] = [
-  {
-    id: "1",
-    lat: 28.4646,
-    lng: 77.0266,
-    type: "live",
-    title: "M3M Golf Estate · Live Tour",
-    meta: "1,284 watching · Sector 65",
-    viewers: 1284,
-  },
-  {
-    id: "2",
-    lat: 28.4321,
-    lng: 77.0667,
-    type: "live",
-    title: "DLF Privana South",
-    meta: "812 watching · Sector 76",
-    viewers: 812,
-  },
-  {
-    id: "3",
-    lat: 28.4089,
-    lng: 77.051,
-    type: "upcoming",
-    title: "Sector 84 Masterclass",
-    meta: "Sat 7 PM · 2.4k registered",
-  },
-  {
-    id: "4",
-    lat: 28.49,
-    lng: 77.085,
-    type: "upcoming",
-    title: "Smart Buyer Workshop",
-    meta: "Sun 6 PM · Locality Legends",
-  },
-  {
-    id: "5",
-    lat: 28.45,
-    lng: 77.09,
-    type: "property",
-    title: "Emaar Digi Homes",
-    meta: "3BHK · ₹2.4 Cr onwards",
-  },
-  {
-    id: "6",
-    lat: 28.475,
-    lng: 77.04,
-    type: "property",
-    title: "Sobha City",
-    meta: "4BHK · ₹3.1 Cr onwards",
-  },
-  {
-    id: "7",
-    lat: 28.42,
-    lng: 77.03,
-    type: "property",
-    title: "Adani Samsara",
-    meta: "Villa · ₹5.8 Cr onwards",
-  },
-  {
-    id: "8",
-    lat: 28.44,
-    lng: 77.075,
-    type: "live",
-    title: "Tata Primanti — Open House",
-    meta: "521 watching · Sector 72",
-  },
-];
 
 const FILTERS = [
   "Live Now",
@@ -140,8 +89,16 @@ function StatPill({
 
 function Index() {
   const [active, setActive] = useState("Live Now");
+  const [selectedLocality, setSelectedLocality] = useState<LocalityInsight | null>(null);
+  const [selectedLive, setSelectedLive] = useState<LiveSession | null>(null);
+  const [selectedReplay, setSelectedReplay] = useState<ReplaySession | null>(null);
+  const [view3D, setView3D] = useState<LocalityInsight | null>(null);
 
-  const liveCards = PINS.filter((p) => p.type === "live");
+  const liveSessions = mockLiveSessions.filter((s) => s.type === "live");
+  const totalLiveViewers = liveSessions.reduce((sum, s) => sum + s.viewers, 0);
+  const totalJoiners = liveSessions.reduce((sum, s) => sum + s.joiners, 0);
+
+  const headerLocality = useMemo(() => selectedLocality ?? mockLocalities[0], [selectedLocality]);
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
@@ -150,7 +107,7 @@ function Index() {
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-live pulse-live" />
             <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              14 events live in Gurgaon
+              {liveSessions.length} events live · {totalJoiners.toLocaleString()} joined today
             </span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
@@ -162,9 +119,9 @@ function Index() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <StatPill label="Live Now" value="14" tone="live" />
-          <StatPill label="This Week" value="38" />
-          <StatPill label="Legends" value="126" tone="gold" />
+          <StatPill label="Live Now" value={String(liveSessions.length)} tone="live" />
+          <StatPill label="Watching" value={totalLiveViewers.toLocaleString()} />
+          <StatPill label="Replays" value={String(mockReplaySessions.length)} tone="gold" />
         </div>
       </div>
 
@@ -194,7 +151,7 @@ function Index() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div className="relative h-[560px] overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
+        <div className="relative h-[620px] overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
           <Suspense
             fallback={
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
@@ -202,86 +159,62 @@ function Index() {
               </div>
             }
           >
-            <DiscoveryMap pins={PINS} />
+            <DiscoveryMap
+              liveSessions={mockLiveSessions}
+              replays={mockReplaySessions}
+              localities={mockLocalities}
+              onSelectLive={setSelectedLive}
+              onSelectReplay={setSelectedReplay}
+              onSelectLocality={setSelectedLocality}
+              onOpen3D={setView3D}
+            />
           </Suspense>
-
-          <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-2">
-            <div className="glass pointer-events-auto rounded-xl px-3 py-2 shadow-[var(--shadow-soft)]">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Engagement Heat
-              </div>
-              <div className="mt-1 flex items-center gap-1.5">
-                <span className="h-2 w-8 rounded-full bg-gradient-to-r from-teal/40 to-live/80" />
-                <span className="text-[10px] text-muted-foreground">Low → High</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-            <div className="glass pointer-events-auto flex items-center gap-3 rounded-xl px-3 py-2">
-              <span className="inline-flex items-center gap-1.5 text-xs">
-                <span className="h-2.5 w-2.5 rounded-full bg-live pulse-live" />
-                Live
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs">
-                <span className="h-2.5 w-2.5 rounded-full bg-teal" />
-                Upcoming
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs">
-                <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-                Property
-              </span>
-            </div>
-            <div className="glass pointer-events-auto rounded-xl px-3 py-2 text-xs text-muted-foreground">
-              Gurgaon · 28.46°N 77.03°E
-            </div>
-          </div>
         </div>
 
         <aside className="flex flex-col gap-3">
+          {selectedLocality && (
+            <LocalityCard
+              locality={selectedLocality}
+              onOpen3D={() => setView3D(selectedLocality)}
+              onClose={() => setSelectedLocality(null)}
+            />
+          )}
+
+          {!selectedLocality && (
+            <LocalityHighlight
+              locality={headerLocality}
+              onOpen3D={() => setView3D(headerLocality)}
+              onPick={() => setSelectedLocality(headerLocality)}
+            />
+          )}
+
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Live Right Now
             </h2>
-            <Link to="/live" className="text-xs font-semibold text-primary hover:underline">
+            <Link to="/demand/live" className="text-xs font-semibold text-primary hover:underline">
               View all →
             </Link>
           </div>
-          {liveCards.map((c) => (
-            <Link
-              key={c.id}
-              to="/live"
-              className="group rounded-2xl border border-border bg-card p-3 transition hover:border-primary/40 hover:shadow-[var(--shadow-elegant)]"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg"
-                  style={{ background: "var(--gradient-primary)" }}
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.25),transparent_60%)]" />
-                  <Badge className="absolute left-1.5 top-1.5 gap-1 bg-live px-1.5 py-0 text-[9px]">
-                    <span className="h-1 w-1 rounded-full bg-white" />
-                    LIVE
-                  </Badge>
-                  <div className="absolute bottom-1 right-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-white">
-                    <Eye className="h-2.5 w-2.5" />
-                    {c.viewers?.toLocaleString()}
-                  </div>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">{c.title}</div>
-                  <div className="mt-0.5 truncate text-xs text-muted-foreground">{c.meta}</div>
-                  <div className="mt-1.5 flex items-center gap-1.5">
-                    <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[9px]">
-                      <ChevronRight className="h-2.5 w-2.5" />
-                      Legend host
-                    </Badge>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-              </div>
-            </Link>
+
+          {liveSessions.map((s) => (
+            <LiveSessionCard key={s.id} session={s} onClick={() => setSelectedLive(s)} />
           ))}
+
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <PlayCircle className="h-4 w-4 text-[#a855f7]" />
+              <h3 className="text-sm font-bold">Past Replays</h3>
+              <span className="ml-auto text-[10px] font-semibold text-muted-foreground">
+                {mockReplaySessions.length} sessions
+              </span>
+            </div>
+            <div className="space-y-3">
+              {mockReplaySessions.map((r) => (
+                <ReplayRow key={r.id} replay={r} onClick={() => setSelectedReplay(r)} />
+              ))}
+            </div>
+          </div>
 
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-3 flex items-center gap-2">
@@ -289,20 +222,24 @@ function Index() {
               <h3 className="text-sm font-bold">Upcoming Masterclasses</h3>
             </div>
             <div className="space-y-3">
-              {PINS.filter((p) => p.type === "upcoming").map((p) => (
-                <div key={p.id} className="flex items-start gap-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
-                    <Building2 className="h-4 w-4" />
+              {mockLiveSessions
+                .filter((s) => s.type === "upcoming")
+                .map((s) => (
+                  <div key={s.id} className="flex items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/10 text-teal">
+                      <Building2 className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{s.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {s.locality} · {s.joiners.toLocaleString()} registered
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
+                      Remind
+                    </Button>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{p.title}</div>
-                    <div className="text-xs text-muted-foreground">{p.meta}</div>
-                  </div>
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]">
-                    Remind
-                  </Button>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -310,8 +247,13 @@ function Index() {
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary mb-1">
               <TrendingUp className="h-3.5 w-3.5" /> Hot Sector
             </div>
-            <div className="text-xl font-bold">Sector 84</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">+38% engagement today</div>
+            <div className="text-xl font-bold">
+              {[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.name}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              +{[...mockLocalities].sort((a, b) => b.hotness - a.hotness)[0]?.yoyAppreciation}% YoY
+              · hottest engagement today
+            </div>
             <Button size="sm" variant="secondary" className="mt-3 h-8 w-full text-xs font-semibold">
               Join the conversation
             </Button>
@@ -319,7 +261,326 @@ function Index() {
         </aside>
       </div>
 
+      {/* Live session details overlay */}
+      {selectedLive && (
+        <SessionPopover session={selectedLive} onClose={() => setSelectedLive(null)} />
+      )}
+      {selectedReplay && (
+        <ReplayPopover replay={selectedReplay} onClose={() => setSelectedReplay(null)} />
+      )}
+
+      {view3D && (
+        <Suspense fallback={null}>
+          <Locality3DView locality={view3D} onClose={() => setView3D(null)} />
+        </Suspense>
+      )}
+
       <MasterclassPlugin />
+    </div>
+  );
+}
+
+function LocalityCard({
+  locality,
+  onOpen3D,
+  onClose,
+}: {
+  locality: LocalityInsight;
+  onOpen3D: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent p-4 shadow-[var(--shadow-elegant)]">
+      <div className="mb-2 flex items-start justify-between">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Locality insight
+          </div>
+          <div className="text-lg font-bold leading-tight">{locality.name}</div>
+        </div>
+        <button
+          onClick={onClose}
+          className="grid h-7 w-7 place-items-center rounded-full border border-border bg-card hover:bg-secondary"
+          aria-label="Close locality details"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 text-[11px]">
+        <Metric label="Live" value={String(locality.liveSessions)} accent="live" />
+        <Metric label="Replays" value={String(locality.replayCount)} />
+        <Metric label="Avg price" value={`₹${locality.avgPriceCr} Cr`} />
+        <Metric label="Per sqft" value={`₹${locality.pricePerSqftK}k`} />
+        <Metric label="YoY" value={`+${locality.yoyAppreciation}%`} accent="gold" />
+        <Metric label="Hotness" value={`${locality.hotness}/100`} />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1.5 text-[10px]">
+        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 font-semibold">
+          <Eye className="h-3 w-3" /> {locality.totalViewersLast7d.toLocaleString()} viewers / 7d
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 font-semibold">
+          <Users className="h-3 w-3" /> {locality.legendBrokers} legend brokers
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 font-semibold">
+          <Building2 className="h-3 w-3" /> {locality.inventoryUnits} units
+        </span>
+      </div>
+
+      <Button
+        size="sm"
+        className="mt-3 h-8 w-full gap-1.5 text-xs font-semibold"
+        onClick={onOpen3D}
+      >
+        <Box className="h-3.5 w-3.5" />
+        Visualize in 3D
+      </Button>
+    </div>
+  );
+}
+
+function LocalityHighlight({
+  locality,
+  onOpen3D,
+  onPick,
+}: {
+  locality: LocalityInsight;
+  onOpen3D: () => void;
+  onPick: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <Flame className="h-4 w-4 text-[var(--live)]" />
+        <h3 className="text-sm font-bold">Featured locality</h3>
+        <span className="ml-auto text-[10px] font-semibold text-muted-foreground">
+          Tap a boundary on the map
+        </span>
+      </div>
+      <div className="text-lg font-bold leading-tight">{locality.name}</div>
+      <div className="mt-0.5 text-[11px] text-muted-foreground">
+        ₹{locality.avgPriceCr} Cr avg · {locality.liveSessions} live · {locality.replayCount}{" "}
+        replays
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button size="sm" variant="outline" className="h-8 text-[11px]" onClick={onPick}>
+          See details
+        </Button>
+        <Button size="sm" className="h-8 gap-1.5 text-[11px]" onClick={onOpen3D}>
+          <Box className="h-3.5 w-3.5" /> 3D view
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: "live" | "gold";
+}) {
+  const tone =
+    accent === "live"
+      ? "bg-[var(--live)]/10 text-[var(--live)]"
+      : accent === "gold"
+        ? "bg-[var(--gold)]/15 text-[var(--gold-foreground)]"
+        : "bg-secondary text-foreground";
+  return (
+    <div className={`rounded-lg px-2 py-1.5 ${tone}`}>
+      <div className="text-[9px] font-semibold uppercase tracking-wider opacity-70">{label}</div>
+      <div className="text-sm font-bold leading-tight">{value}</div>
+    </div>
+  );
+}
+
+function LiveSessionCard({ session, onClick }: { session: LiveSession; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group rounded-2xl border border-border bg-card p-3 text-left transition hover:border-primary/40 hover:shadow-[var(--shadow-elegant)]"
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg"
+          style={{ background: "var(--gradient-primary)" }}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.25),transparent_60%)]" />
+          <Badge className="absolute left-1.5 top-1.5 gap-1 bg-live px-1.5 py-0 text-[9px]">
+            <span className="h-1 w-1 rounded-full bg-white" />
+            LIVE
+          </Badge>
+          <div className="absolute bottom-1 right-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-white">
+            <Eye className="h-2.5 w-2.5" />
+            {session.viewers.toLocaleString()}
+          </div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold">{session.title}</div>
+          <div className="mt-0.5 truncate text-xs text-muted-foreground">
+            {session.locality} · {session.developer}
+          </div>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[9px]">
+              <Users className="h-2.5 w-2.5" />
+              {session.joiners.toLocaleString()} joined
+            </Badge>
+            <span className="text-[9px] font-semibold text-[var(--live)]">
+              +{session.joiningPerMinute}/min
+            </span>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+      </div>
+    </button>
+  );
+}
+
+function ReplayRow({ replay, onClick }: { replay: ReplaySession; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex w-full items-start gap-3 text-left">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#a855f7]/10 text-[#a855f7]">
+        <PlayCircle className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold">{replay.title}</div>
+        <div className="text-[11px] text-muted-foreground">
+          {replay.locality} · {replay.durationMin}m
+        </div>
+        <div className="mt-0.5 text-[10px] font-semibold text-muted-foreground">
+          {replay.replayViews.toLocaleString()} replays · {replay.engagement}% engagement
+        </div>
+      </div>
+      <ChevronRight className="mt-1 h-4 w-4 text-muted-foreground" />
+    </button>
+  );
+}
+
+function SessionPopover({ session, onClose }: { session: LiveSession; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[1500] grid place-items-center bg-black/40 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-[min(440px,100%)] rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-elegant)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <Badge className="gap-1 bg-live px-1.5 py-0 text-[9px]">
+              <span className="h-1 w-1 rounded-full bg-white" /> LIVE
+            </Badge>
+            <div className="mt-2 text-lg font-bold leading-tight">{session.title}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {session.developer} · {session.locality}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="grid h-7 w-7 place-items-center rounded-full border border-border bg-card hover:bg-secondary"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+          <Metric label="Watching" value={session.viewers.toLocaleString()} accent="live" />
+          <Metric label="Joined" value={session.joiners.toLocaleString()} />
+          <Metric label="+/min" value={`+${session.joiningPerMinute}`} accent="gold" />
+        </div>
+        <div className="mt-3 rounded-xl border border-border bg-secondary/30 p-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Recently joined
+          </div>
+          <div className="mt-2 flex -space-x-1.5">
+            {session.recentJoiners?.map((j) => (
+              <div
+                key={j.id}
+                title={`${j.name} · ${j.tier}`}
+                className={`grid h-7 w-7 place-items-center rounded-full text-[10px] font-bold text-white ring-2 ring-card ${
+                  j.tier === "legend"
+                    ? "bg-[var(--gold)]"
+                    : j.tier === "gold"
+                      ? "bg-[var(--gold)]/80"
+                      : j.tier === "silver"
+                        ? "bg-[var(--silver)] text-foreground"
+                        : "bg-primary"
+                }`}
+              >
+                {j.initial}
+              </div>
+            ))}
+            <div className="ml-2 self-center text-[11px] font-semibold text-muted-foreground">
+              +{Math.max(0, session.joiners - (session.recentJoiners?.length ?? 0))} more
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button asChild size="sm" className="h-9 flex-1 text-xs font-semibold">
+            <Link to="/demand/live">Join live</Link>
+          </Button>
+          <Button size="sm" variant="outline" className="h-9 flex-1 text-xs">
+            Notify on highlights
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReplayPopover({ replay, onClose }: { replay: ReplaySession; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[1500] grid place-items-center bg-black/40 px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-[min(440px,100%)] rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-elegant)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <Badge className="gap-1 bg-[#a855f7] px-1.5 py-0 text-[9px] text-white">
+              <PlayCircle className="h-2.5 w-2.5" /> REPLAY
+            </Badge>
+            <div className="mt-2 text-lg font-bold leading-tight">{replay.title}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {replay.developer} · {replay.locality}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="grid h-7 w-7 place-items-center rounded-full border border-border bg-card hover:bg-secondary"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+          <Metric label="Replays" value={replay.replayViews.toLocaleString()} />
+          <Metric label="Live viewers" value={replay.liveViewers.toLocaleString()} accent="live" />
+          <Metric label="Engagement" value={`${replay.engagement}%`} accent="gold" />
+        </div>
+        <div className="mt-3 text-[11px] text-muted-foreground">
+          Aired{" "}
+          {new Date(replay.airedAt).toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}{" "}
+          · {replay.durationMin}m · {replay.highlightCount} highlights
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button asChild size="sm" className="h-9 flex-1 text-xs font-semibold">
+            <Link to="/demand/replay">Watch replay</Link>
+          </Button>
+          <Button size="sm" variant="outline" className="h-9 flex-1 text-xs">
+            Share clip
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
