@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LiveRouteImport } from './routes/live'
+import { Route as HostRouteImport } from './routes/host'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ReplayRoute = ReplayRouteImport.update({
@@ -29,6 +30,11 @@ const LiveRoute = LiveRouteImport.update({
   path: '/live',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HostRoute = HostRouteImport.update({
+  id: '/host',
+  path: '/host',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/host': typeof HostRoute
   '/live': typeof LiveRoute
   '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/host': typeof HostRoute
   '/live': typeof LiveRoute
   '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/host': typeof HostRoute
   '/live': typeof LiveRoute
   '/profile': typeof ProfileRoute
   '/replay': typeof ReplayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/live' | '/profile' | '/replay'
+  fullPaths: '/' | '/host' | '/live' | '/profile' | '/replay'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/live' | '/profile' | '/replay'
-  id: '__root__' | '/' | '/live' | '/profile' | '/replay'
+  to: '/' | '/host' | '/live' | '/profile' | '/replay'
+  id: '__root__' | '/' | '/host' | '/live' | '/profile' | '/replay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HostRoute: typeof HostRoute
   LiveRoute: typeof LiveRoute
   ProfileRoute: typeof ProfileRoute
   ReplayRoute: typeof ReplayRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/host': {
+      id: '/host'
+      path: '/host'
+      fullPath: '/host'
+      preLoaderRoute: typeof HostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HostRoute: HostRoute,
   LiveRoute: LiveRoute,
   ProfileRoute: ProfileRoute,
   ReplayRoute: ReplayRoute,
