@@ -5,6 +5,14 @@ let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 
 function record(error: unknown) {
+  // Ignore common browser extension errors (like Grammarly)
+  if (error instanceof Error && error.stack?.includes("contentScript.js")) {
+    return;
+  }
+  if (typeof error === "string" && error.includes("contentScript.js")) {
+    return;
+  }
+
   lastCapturedError = { error, at: Date.now() };
 }
 
