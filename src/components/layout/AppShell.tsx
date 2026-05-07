@@ -2,13 +2,14 @@ import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import { MapPin, Radio, PlayCircle, ShieldCheck, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const nav = [
+type NavItem = { to: string; label: string; icon: typeof MapPin; live?: boolean };
+const nav: NavItem[] = [
   { to: "/", label: "Discover", icon: MapPin },
   { to: "/live", label: "Live Room", icon: Radio, live: true },
   { to: "/replay", label: "Replays", icon: PlayCircle },
   { to: "/profile", label: "Reputation", icon: ShieldCheck },
   { to: "/host", label: "Host", icon: BarChart3 },
-] as const;
+];
 
 export function AppShell() {
   const { pathname } = useLocation();
@@ -31,7 +32,7 @@ export function AppShell() {
               return (
                 <Link
                   key={n.to}
-                  to={n.to}
+                  to={n.to as any}
                   className={cn(
                     "group relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
@@ -61,7 +62,7 @@ export function AppShell() {
           {nav.map((n) => {
             const active = pathname === n.to;
             return (
-              <Link key={n.to} to={n.to} className={cn("flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium", active ? "bg-secondary text-foreground" : "text-muted-foreground")}>
+              <Link key={n.to} to={n.to as any} className={cn("flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium", active ? "bg-secondary text-foreground" : "text-muted-foreground")}>
                 <n.icon className="h-3.5 w-3.5" />
                 {n.label}
               </Link>
