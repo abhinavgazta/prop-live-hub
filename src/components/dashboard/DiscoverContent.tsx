@@ -3,6 +3,7 @@ import {
   Search,
   SlidersHorizontal,
   Calendar,
+  PlayCircle,
   Star,
   Building2,
   TrendingUp,
@@ -586,7 +587,9 @@ export function DiscoverSidebar({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <div className="truncate text-sm font-semibold">{property.title}</div>
+                      <div className="overflow-hidden text-sm font-semibold leading-snug [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                        {property.title}
+                      </div>
                       {isRegistered && (
                         <Badge
                           variant="secondary"
@@ -631,6 +634,41 @@ export function DiscoverSidebar({
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {dashboard === "demand" && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <PlayCircle className="h-4 w-4 text-[#a855f7]" />
+            <h3 className="text-sm font-bold">Past Replays</h3>
+            <span className="ml-auto text-[10px] font-semibold text-muted-foreground">
+              {mockReplaySessions.length} sessions
+            </span>
+          </div>
+          <div className="space-y-3">
+            {mockReplaySessions.slice(0, 3).map((replay) => (
+              <Link
+                key={replay.id}
+                to="/demand/replay"
+                className="flex items-start gap-3 rounded-lg transition hover:bg-secondary/40"
+              >
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#a855f7]/10 text-[#a855f7]">
+                  <PlayCircle className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold">{replay.title}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {replay.locality} · {replay.durationMin}m
+                  </div>
+                  <div className="mt-0.5 text-[10px] font-semibold text-muted-foreground">
+                    {replay.replayViews.toLocaleString()} replays · {replay.engagement}% engagement
+                  </div>
+                </div>
+                <ChevronRight className="mt-1 h-4 w-4 text-muted-foreground" />
+              </Link>
+            ))}
           </div>
         </div>
       )}
