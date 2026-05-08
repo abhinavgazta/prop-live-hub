@@ -607,13 +607,7 @@ export function DiscoverSidebar({
                       {registrationText}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <a
-                      href={`http://localhost:8080${detailRoute}`}
-                      className="text-[11px] font-semibold text-primary hover:underline"
-                    >
-                      View more
-                    </a>
+                  <div className="flex flex-col items-end gap-1">
                     <Button
                       size="sm"
                       variant={isRegistered ? "ghost" : "outline"}
@@ -627,6 +621,12 @@ export function DiscoverSidebar({
                     >
                       {isRegistered ? "✓" : "Register"}
                     </Button>
+                    <a
+                      href={`http://localhost:8080${detailRoute}`}
+                      className="text-[11px] font-semibold text-primary hover:underline"
+                    >
+                      View more
+                    </a>
                   </div>
                 </div>
               );
